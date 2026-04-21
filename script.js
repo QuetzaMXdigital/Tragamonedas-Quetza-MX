@@ -1,105 +1,161 @@
-// Variables del sistema
+// --- 1. VARIABLES Y CONFIGURACIÓN ---
 let creditos = 1000;
+let apuestaTotal = 0;
 let enJuego = false;
 
-// Elementos del DOM (Pantalla)
-const btnJugar = document.getElementById("btn-jugar");
-const displayCreditos = document.getElementById("creditos");
+// Registro de cuánto apostó el jugador a cada figura en esta ronda
+let apuestasActuales = {
+    "Sandía": 0,
+    "Estrella": 0,
+    "Cereza": 0
+};
 
-// Esta es la ruta exacta del perímetro (en el sentido de las agujas del reloj)
-// Basado en tu esqueleto: Top -> Derecha -> Abajo -> Izquierda
-const secuenciaLuz = [
-    0, 1, 2, 3, 4, 5, 6,       // Fila de arriba (hacia la derecha)
-    8, 10, 12, 14, 16,         // Columna derecha (hacia abajo)
-    23, 22, 21, 20, 19, 18, 17, // Fila de abajo (hacia la izquierda)
-    15, 13, 11, 9, 7           // Columna izquierda (hacia arriba)
+// Tabla de multiplicadores (Lo que paga cada figura)
+const multiplicadores = {
+    "Sandía": 20,
+    "Estrella": 50,
+    "Cereza": 2,
+    "Tren": 0 // El tren te hace perder
+};
+
+// Mapeo del tablero: Le decimos qué figura hay en cada casilla (del 0 al 23)
+// Las posiciones 0, 6, 12 y 18 suelen ser las esquinas (Los Trenes/Exit)
+const mapaTablero = [
+    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren", // Arriba
+    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía",                 // Derecha
+    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren", // Abajo
+    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía"                  // Izquierda
 ];
 
-// Función principal para girar la ruleta perimetral
+// Secuencia de giro (el orden de los IDs en el HTML)
+const secuenciaLuz = [
+    0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 23, 22, 21, 20, 19, 18, 17, 15, 13, 11, 9, 7
+];
+
+
+// --- 2. ELEMENTOS DE LA PANTALLA ---
+const btnJugar = document.getElementById("btn-jugar");
+const displayCreditos = document.getElementById("creditos");
+const displayApuesta = document.getElementById("apuesta");
+const displayPremio = document.getElementById("premio");
+
+// Botones de apuesta (Seleccionamos todos los botones con la clase 'btn-apuesta')
+const botonesApuesta = document.querySelectorAll(".btn-apuesta");
+
+
+// --- 3. LÓGICA DE APUESTAS ---
+// Le asignamos la función de apostar a cada botón verde
+botonesApuesta.forEach(boton => {
+    boton.addEventListener("click", () => {
+        if (enJuego) return; // No puede apostar mientras gira
+        
+        if (creditos >= 1) {
+            let frutaSeleccionada = boton.innerText;
+            
+            // Restar crédito y sumar a la apuesta
+            creditos--;
+            apuestaTotal++;
+            apuestasActuales[frutaSeleccionada]++;
+            
+            // Actualizar la pantalla
+            displayCreditos.innerText = creditos;
+            displayApuesta.innerText = apuestaTotal;
+            
+            console.log(`Apostaste a: ${frutaSeleccionada}. Llevas: ${apuestasActuales[frutaSeleccionada]}`);
+        } else {
+            alert("No tienes suficientes créditos.");
+        }
+    });
+});
+
+
+// --- 4. MOTOR DE GIRO ---
 function iniciarGiro() {
-    // Si ya está girando, no hacer nada
     if (enJuego) return;
-    
-    // Descontar costo de giro (ejemplo: 10 créditos)
-    if (creditos < 10) {
-        alert("¡No tienes suficientes créditos!");
+    if (apuestaTotal === 0) {
+        alert("¡Debes apostar al menos a una figura antes de jugar!");
         return;
     }
     
-    creditos -= 10;
-    displayCreditos.innerText = creditos;
     enJuego = true;
-    
-    // Desactivar el botón jugar
+    displayPremio.innerText = "0"; // Reiniciamos el premio visual
     btnJugar.style.opacity = "0.5";
-    btnJugar.style.cursor = "not-allowed";
 
     let posicionActual = 0;
     let vueltas = 0;
-    // RNG: Elegir una casilla final al azar (del 0 al 23)
+    // RNG: Elegir una casilla final al azar
     const metaFinal = Math.floor(Math.random() * secuenciaLuz.length); 
-    
-    // Velocidad de la luz (milisegundos)
     let velocidad = 50; 
     let temporizador;
 
-    // Función que mueve la luz paso a paso
     function moverLuz() {
-        // 1. Apagar todas las casillas
         document.querySelectorAll('.casilla').forEach(c => c.classList.remove('activa'));
 
-        // 2. Encender la casilla actual de la secuencia
         let idCasillaActiva = secuenciaLuz[posicionActual];
         document.getElementById(`casilla-${idCasillaActiva}`).classList.add('activa');
 
-        // 3. Avanzar a la siguiente posición
         posicionActual++;
-
-        // Si llegamos al final del arreglo, dar la vuelta
         if (posicionActual >= secuenciaLuz.length) {
             posicionActual = 0;
             vueltas++;
         }
 
-        // 4. Lógica de frenado (después de 2 vueltas, empezamos a frenar)
+        // Frenado
         if (vueltas >= 2 && posicionActual === metaFinal) {
-            // ¡SE DETUVO EN LA META!
             clearTimeout(temporizador);
             finalizarGiro(idCasillaActiva);
         } else {
-            // Seguir girando (hacerlo más lento si ya dimos 2 vueltas)
-            if (vueltas >= 2) {
-                velocidad += 20; // Efecto de frenado
-            }
+            if (vueltas >= 2) velocidad += 20; 
             temporizador = setTimeout(moverLuz, velocidad);
         }
     }
 
-    // Iniciar el motor
     moverLuz();
 }
 
-// Función cuando la luz se detiene
-function finalizarGiro(casillaGanadora) {
-    enJuego = false;
-    btnJugar.style.opacity = "1";
-    btnJugar.style.cursor = "pointer";
+
+// --- 5. RESOLUCIÓN DE PREMIOS ---
+function finalizarGiro(idCasillaGanadora) {
+    // 1. Averiguamos qué fruta hay en esa casilla
+    let frutaGanadora = mapaTablero[idCasillaGanadora];
+    console.log(`¡Cayó en la casilla ${idCasillaGanadora}, que es: ${frutaGanadora}!`);
+
+    // 2. Revisamos si el usuario apostó a esa fruta
+    let monedasApostadas = apuestasActuales[frutaGanadora] || 0;
     
-    // Aquí luego conectaremos los premios. Por ahora solo mostramos en consola
-    console.log("Se detuvo en la casilla ID:", casillaGanadora);
+    if (monedasApostadas > 0) {
+        // ¡Ganó! Calculamos el premio
+        let multiplicador = multiplicadores[frutaGanadora];
+        let premioTotal = monedasApostadas * multiplicador;
+        
+        creditos += premioTotal; // Le sumamos las ganancias
+        displayPremio.innerText = premioTotal; // Mostramos el premio
+        console.log(`¡GANASTE! ${premioTotal} créditos.`);
+    } else {
+        console.log("No apostaste a esta figura. Suerte para la próxima.");
+    }
+
+    // 3. Reiniciamos la máquina para la siguiente ronda
+    apuestaTotal = 0;
+    apuestasActuales = { "Sandía": 0, "Estrella": 0, "Cereza": 0 };
     
-    // Un pequeño efecto visual de parpadeo al ganar
+    // Actualizamos pantallas
+    displayCreditos.innerText = creditos;
+    displayApuesta.innerText = apuestaTotal;
+    
+    // Parpadeo de la casilla ganadora
     let parpadeos = 0;
     let parpadeoTimer = setInterval(() => {
-        let elemento = document.getElementById(`casilla-${casillaGanadora}`);
+        let elemento = document.getElementById(`casilla-${idCasillaGanadora}`);
         elemento.classList.toggle('activa');
         parpadeos++;
         if (parpadeos > 5) {
             clearInterval(parpadeoTimer);
-            elemento.classList.add('activa'); // Dejarla encendida al final
+            elemento.classList.add('activa');
+            enJuego = false;
+            btnJugar.style.opacity = "1";
         }
     }, 200);
 }
 
-// Escuchar el clic del botón
 btnJugar.addEventListener("click", iniciarGiro);
