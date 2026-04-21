@@ -176,3 +176,25 @@ btnCobrar.addEventListener("click", () => {
     }
     actualizarPantallas();
 });
+// --- 9. SISTEMA DE RECARGA (DEPÓSITO) ---
+const btnCargar = document.getElementById("btn-cargar-100");
+
+btnCargar.addEventListener("click", () => {
+    if (enJuego) return;
+
+    const montoARecargar = 100; // Monto fijo por clic, podrías usar un input
+
+    if (saldoGlobal >= montoARecargar) {
+        // Ejecutar la transferencia
+        saldoGlobal -= montoARecargar;
+        creditos += montoARecargar;
+        
+        // Actualizar visualmente ambos saldos
+        actualizarPantallas();
+        
+        console.log(`✅ Depósito exitoso: ${montoARecargar} QC movidos al juego.`);
+        // Opcional: un pequeño sonido de monedas
+    } else {
+        alert("⚠️ No tienes suficiente saldo en tu Billetera Global de Quetza.");
+    }
+});
