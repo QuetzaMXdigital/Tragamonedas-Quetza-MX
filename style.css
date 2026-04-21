@@ -6,6 +6,7 @@
 }
 
 body {
+    padding-top: 80px; /* El espacio para que el header no tape la máquina */
     background-color: #1a1a2e; /* Fondo oscuro tipo arcade */
     display: flex;
     justify-content: center;
