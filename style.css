@@ -1,5 +1,5 @@
 /* =========================================
-   1. RESETEO Y ESTILOS BASE
+   1. RESETEO Y ESTILOS BASE (GLOBALES)
 ========================================= */
 * {
     box-sizing: border-box;
@@ -9,7 +9,7 @@
 }
 
 body {
-    padding-top: 80px; /* Espacio para que la barra superior no tape el juego */
+    padding-top: 80px; /* Espacio para que el header no tape la máquina */
     background-color: #1a1a2e; /* Fondo oscuro tipo arcade */
     display: flex;
     justify-content: center;
@@ -19,7 +19,7 @@ body {
 }
 
 /* =========================================
-   2. BILLETERA GLOBAL (QUETZA HEADER)
+   2. BILLETERA GLOBAL (QUETZA HEADER) - ESTO SÍ FUNCIONABA
 ========================================= */
 .global-header {
     background-color: #0f3460;
@@ -28,23 +28,15 @@ body {
     align-items: center;
     padding: 10px 20px;
     width: 100%;
-    position: fixed; /* Esto hace que se quede pegada arriba */
+    position: fixed; /* Fijada arriba */
     top: 0;
     left: 0;
     border-bottom: 2px solid #e94560;
     z-index: 1000;
 }
 
-.logo { 
-    font-weight: bold; 
-    font-size: 1.2rem; 
-    color: #fff; 
-}
-
-.logo .tag { 
-    color: #e94560; 
-    font-size: 0.8rem; 
-}
+.logo { font-weight: bold; font-size: 1.2rem; color: #fff; }
+.logo .tag { color: #e94560; font-size: 0.8rem; }
 
 .wallet-info {
     background: rgba(0, 0, 0, 0.4);
@@ -53,15 +45,8 @@ body {
     border: 1px solid #444;
 }
 
-.balance { 
-    color: #00ff88; 
-    font-weight: bold; 
-}
-
-.currency { 
-    color: #ffd700; 
-    font-size: 0.8rem; 
-}
+.balance { color: #00ff88; font-weight: bold; }
+.currency { color: #ffd700; font-size: 0.8rem; }
 
 /* =========================================
    3. CONTENEDOR PRINCIPAL DE LA MÁQUINA
@@ -71,9 +56,9 @@ body {
     padding: 20px;
     border-radius: 15px;
     border: 4px solid #e94560;
-    box-shadow: 0 0 20px #e94560;
+    box-shadow: 0 0 20px rgba(233, 69, 96, 0.7);
     max-width: 600px;
-    width: 100%;
+    width: 95%; /* Más adaptable */
 }
 
 /* =========================================
@@ -100,12 +85,12 @@ body {
 }
 
 .display-principal {
-    color: #ffd700; 
+    color: #ffd700; /* Dorado para créditos */
     font-size: 16px;
 }
 
 /* =========================================
-   5. EL TABLERO Y LAS CASILLAS (GRID)
+   5. EL TABLERO Y LAS CASILLAS (GRID) - ARREGLADO
 ========================================= */
 .tablero {
     display: grid;
@@ -116,7 +101,9 @@ body {
     padding: 10px;
     border-radius: 10px;
     border: 3px solid #ffd700;
-    aspect-ratio: 1 / 1; 
+    aspect-ratio: 1 / 1; /* Mantiene cuadrado */
+    width: 100%;
+    position: relative; /* Importante para el centro */
 }
 
 .casilla {
@@ -131,7 +118,96 @@ body {
     transition: all 0.1s;
 }
 
+/* Clase JS para encender la luz */
 .casilla.activa {
     background-color: #ffff00;
     box-shadow: 0 0 15px #ffff00;
-    transform: scale(1.0
+    transform: scale(1.05);
+    border-color: #ffaa00;
+}
+
+/* El Centro Hueco - ARREGLADO */
+.panel-central {
+    grid-column: 2 / 7; /* Abarca desde la columna 2 hasta el inicio de la 7 */
+    grid-row: 2 / 7;    /* Abarca desde la fila 2 hasta el inicio de la 7 */
+    background-color: #000;
+    border: 3px solid #444;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    text-align: center;
+    z-index: 10; /* Asegura estar arriba */
+}
+
+.panel-central h1 {
+    color: #ff00ff;
+    text-shadow: 2px 2px #000;
+    font-size: 24px;
+}
+
+/* =========================================
+   6. BOTONERA INFERIOR - ARREGLADO (Más Retro)
+========================================= */
+.controles {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center; /* Centrado */
+    gap: 15px; /* Más espacio */
+    flex-wrap: wrap; /* Por si acaso */
+}
+
+/* Estilo Base para todos los botones */
+.controles button {
+    border: none;
+    border-radius: 50%; /* Perfectamente circulares */
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.1s;
+    text-transform: uppercase;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    position: relative; /* Para la sombra profunda */
+}
+
+/* Botones de apuesta (Verdes) */
+.btn-apuesta { 
+    background-color: #2ecc71; /* Verde más vivo */
+    width: 70px; 
+    height: 70px;
+    box-shadow: 0 6px #27ae60, 0 8px 10px rgba(0,0,0,0.5); /* Efecto 3D profundo */
+}
+
+/* Botón Cobrar (Azul) */
+.btn-cobrar { 
+    background-color: #3498db; 
+    width: 90px; 
+    height: 90px;
+    font-size: 16px;
+    box-shadow: 0 6px #2980b9, 0 8px 10px rgba(0,0,0,0.5);
+}
+
+/* Botón JUGAR (Rojo) */
+.btn-jugar { 
+    background-color: #e74c3c; 
+    width: 110px; 
+    height: 110px; 
+    font-size: 20px;
+    box-shadow: 0 6px #c0392b, 0 8px 10px rgba(0,0,0,0.5);
+}
+
+/* Efectos Interactivos */
+.controles button:active {
+    transform: translateY(4px); /* Se hunde al presionar */
+    box-shadow: 0 2px #333, 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.controles button:hover {
+    filter: brightness(1.1); /* Brilla un poco al pasar el mouse */
+}
