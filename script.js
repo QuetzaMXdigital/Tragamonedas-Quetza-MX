@@ -3,7 +3,7 @@ let saldoGlobal = 5000;
 let premioSesion = 0;
 let enJuego = false;
 
-// Catálogo actualizado con IMÁGENES reales
+// Catálogo de símbolos, multiplicadores y Probabilidad
 const catalogo = {
     "exit":     { icono: "<img src='exit.png' alt='Exit'>", multi: 0,  peso: 35 },
     "manzana":  { icono: "<img src='manzana.png' alt='Manzana'>", multi: 3,  peso: 25 },
@@ -46,11 +46,10 @@ function inicializarTablero() {
 }
 
 function inicializarControles() {
-    panelApuestas.innerHTML = ""; // Limpia por si acaso
+    panelApuestas.innerHTML = ""; 
     Object.keys(apuestas).forEach(fruta => {
         let modulo = document.createElement("div");
         modulo.className = "modulo-apuesta";
-        // AQUÍ ESTÁ EL CAMBIO: Los botones ahora envían 1 y -1
         modulo.innerHTML = `
             <div class="modulo-icono">${catalogo[fruta].icono}</div>
             <span class="modulo-multiplicador">${catalogo[fruta].multi}x</span>
@@ -68,24 +67,18 @@ inicializarTablero();
 inicializarControles();
 actualizarPantallas();
 
-// --- 4. SISTEMA DE APUESTAS FINANCIERAS ---
+// --- 4. CONFIGURAR APUESTAS (Solo prepara la mesa, NO cobra) ---
 window.ajustarApuesta = function(fruta, cantidad) {
     if (enJuego) return;
 
-    if (cantidad > 0) {
-        if (saldoGlobal >= cantidad) {
-            saldoGlobal -= cantidad;
-            apuestas[fruta] += cantidad;
-        } else {
-            alert("⚠️ Saldo insuficiente en tu Billetera Global.");
-        }
-    } else {
-        let montoARestar = Math.abs(cantidad);
-        if (apuestas[fruta] >= montoARestar) {
-            apuestas[fruta] -= montoARestar;
-            saldoGlobal += montoARestar;
-        }
+    // Sumar o restar a la configuración de la apuesta
+    let nuevaApuesta = apuestas[fruta] + cantidad;
+    
+    // Evitar apuestas negativas
+    if (nuevaApuesta >= 0) {
+        apuestas[fruta] = nuevaApuesta;
     }
+    
     actualizarPantallas();
 };
 
@@ -123,11 +116,27 @@ function elegirCasillaConVentaja() {
     return opciones[Math.floor(Math.random() * opciones.length)];
 }
 
-// --- 6. GIRO Y PREMIOS ---
+// --- 6. EL GIRO Y EL COBRO REAL ---
 btnJugar.addEventListener("click", () => {
     let totalMesa = Object.values(apuestas).reduce((a, b) => a + b, 0);
+    
     if (enJuego || totalMesa === 0) return;
 
+    // VERIFICACIÓN Y COBRO DEL GIRO
+    if (premioSesion >= totalMesa) {
+        // Cobra de las ganancias de esta sesión
+        premioSesion -= totalMesa;
+    } else if (saldoGlobal + premioSesion >= totalMesa) {
+        // Cobra de las ganancias y lo que falte de la billetera global
+        let falta = totalMesa - premioSesion;
+        premioSesion = 0;
+        saldoGlobal -= falta;
+    } else {
+        alert("⚠️ Saldo insuficiente en tu Billetera para jugar esta configuración.");
+        return; // Detiene el juego si no hay fondos
+    }
+
+    actualizarPantallas();
     enJuego = true;
     btnJugar.style.opacity = "0.5";
 
@@ -135,7 +144,6 @@ btnJugar.addEventListener("click", () => {
     let vueltas = 0;
     let indexFinal = elegirCasillaConVentaja();
     let metaFinal = secuenciaLuz.indexOf(indexFinal);
-    
     let velocidad = 50;
     let temporizador;
 
@@ -168,11 +176,7 @@ function finalizarGiro(idGanador) {
     if (frutaGanadora !== "exit" && apuestas[frutaGanadora] > 0) {
         let ganancia = apuestas[frutaGanadora] * catalogo[frutaGanadora].multi;
         premioSesion += ganancia; 
-        
-        setTimeout(() => {
-            alert(`🎉 ¡BINGO!\nGanaste ${ganancia} QC con ${catalogo[frutaGanadora].icono}`);
-            actualizarPantallas();
-        }, 100);
+        actualizarPantallas();
     }
 
     let parpadeos = 0;
@@ -193,16 +197,19 @@ function finalizarGiro(idGanador) {
 btnCobrar.addEventListener("click", () => {
     if (enJuego) return;
     
-    let totalMesa = Object.values(apuestas).reduce((a, b) => a + b, 0);
-    let totalARecibir = premioSesion + totalMesa;
-
-    if (totalARecibir > 0) {
-        saldoGlobal += totalARecibir; 
+    if (premioSesion > 0) {
+        saldoGlobal += premioSesion; 
+        let montoCobrado = premioSesion;
         premioSesion = 0;
         
+        // Limpiar la mesa de apuestas
         Object.keys(apuestas).forEach(f => apuestas[f] = 0);
         
         actualizarPantallas();
-        alert(`💰 COBRO EXITOSO\nSe han transferido ${totalARecibir} QC a tu cuenta global.`);
+        alert(`💰 COBRO EXITOSO\nSe han transferido ${montoCobrado} QC a tu Billetera Global.`);
+    } else {
+        // Si no hay premio, solo limpia la mesa
+        Object.keys(apuestas).forEach(f => apuestas[f] = 0);
+        actualizarPantallas();
     }
 });
