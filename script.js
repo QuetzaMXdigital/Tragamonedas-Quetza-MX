@@ -1,6 +1,6 @@
 // --- 1. CONFIGURACIÓN DEL SISTEMA ---
 let saldoGlobal = 5000;
-let premioSesion = 0;
+let ultimoPremio = 0; // Ahora solo muestra lo ganado en el último giro
 let enJuego = false;
 
 // Catálogo de símbolos, multiplicadores y Probabilidad
@@ -67,14 +67,11 @@ inicializarTablero();
 inicializarControles();
 actualizarPantallas();
 
-// --- 4. CONFIGURAR APUESTAS (Solo prepara la mesa, NO cobra) ---
+// --- 4. CONFIGURAR APUESTAS (Solo prepara la mesa) ---
 window.ajustarApuesta = function(fruta, cantidad) {
     if (enJuego) return;
 
-    // Sumar o restar a la configuración de la apuesta
     let nuevaApuesta = apuestas[fruta] + cantidad;
-    
-    // Evitar apuestas negativas
     if (nuevaApuesta >= 0) {
         apuestas[fruta] = nuevaApuesta;
     }
@@ -84,7 +81,7 @@ window.ajustarApuesta = function(fruta, cantidad) {
 
 function actualizarPantallas() {
     domSaldo.innerText = saldoGlobal;
-    domPremio.innerText = premioSesion;
+    domPremio.innerText = ultimoPremio;
     
     let totalApostado = 0;
     Object.keys(apuestas).forEach(f => {
@@ -116,24 +113,18 @@ function elegirCasillaConVentaja() {
     return opciones[Math.floor(Math.random() * opciones.length)];
 }
 
-// --- 6. EL GIRO Y EL COBRO REAL ---
+// --- 6. EL GIRO (TRANSACCIÓN DIRECTA AL POZO GLOBAL) ---
 btnJugar.addEventListener("click", () => {
     let totalMesa = Object.values(apuestas).reduce((a, b) => a + b, 0);
-    
     if (enJuego || totalMesa === 0) return;
 
-    // VERIFICACIÓN Y COBRO DEL GIRO
-    if (premioSesion >= totalMesa) {
-        // Cobra de las ganancias de esta sesión
-        premioSesion -= totalMesa;
-    } else if (saldoGlobal + premioSesion >= totalMesa) {
-        // Cobra de las ganancias y lo que falte de la billetera global
-        let falta = totalMesa - premioSesion;
-        premioSesion = 0;
-        saldoGlobal -= falta;
+    // COBRO DIRECTO AL SALDO GLOBAL
+    if (saldoGlobal >= totalMesa) {
+        saldoGlobal -= totalMesa;
+        ultimoPremio = 0; // Limpia el display de premio al iniciar nuevo giro
     } else {
-        alert("⚠️ Saldo insuficiente en tu Billetera para jugar esta configuración.");
-        return; // Detiene el juego si no hay fondos
+        alert("⚠️ Saldo insuficiente en tu Billetera Global.");
+        return;
     }
 
     actualizarPantallas();
@@ -173,9 +164,13 @@ btnJugar.addEventListener("click", () => {
 function finalizarGiro(idGanador) {
     let frutaGanadora = mapaTablero[idGanador];
     
+    // PREMIO DIRECTO AL SALDO GLOBAL
     if (frutaGanadora !== "exit" && apuestas[frutaGanadora] > 0) {
         let ganancia = apuestas[frutaGanadora] * catalogo[frutaGanadora].multi;
-        premioSesion += ganancia; 
+        
+        ultimoPremio = ganancia; // Se muestra en la pantalla
+        saldoGlobal += ganancia; // Se va directo a la billetera (Pozo Global)
+        
         actualizarPantallas();
     }
 
@@ -189,27 +184,25 @@ function finalizarGiro(idGanador) {
             if(el) el.classList.add('activa');
             enJuego = false;
             btnJugar.style.opacity = "1";
+            
+            // Opcional: Alerta visual después de que termina de parpadear
+            if (ultimoPremio > 0) {
+                setTimeout(() => {
+                    alert(`🎉 ¡GANASTE!\nSe han sumado ${ultimoPremio} QC directo a tu Billetera Global.`);
+                }, 100);
+            }
         }
     }, 150);
 }
 
-// --- 7. SISTEMA DE COBRO ---
+// --- 7. BOTÓN LIMPIAR MESA (Antes "Cobrar") ---
 btnCobrar.addEventListener("click", () => {
     if (enJuego) return;
     
-    if (premioSesion > 0) {
-        saldoGlobal += premioSesion; 
-        let montoCobrado = premioSesion;
-        premioSesion = 0;
-        
-        // Limpiar la mesa de apuestas
-        Object.keys(apuestas).forEach(f => apuestas[f] = 0);
-        
-        actualizarPantallas();
-        alert(`💰 COBRO EXITOSO\nSe han transferido ${montoCobrado} QC a tu Billetera Global.`);
-    } else {
-        // Si no hay premio, solo limpia la mesa
-        Object.keys(apuestas).forEach(f => apuestas[f] = 0);
-        actualizarPantallas();
-    }
+    // Simplemente retira las configuraciones de apuesta de la mesa
+    Object.keys(apuestas).forEach(f => apuestas[f] = 0);
+    ultimoPremio = 0;
+    
+    actualizarPantallas();
+    // Puedes cambiar el texto del botón en index.html a "LIMPIAR MESA" si lo deseas
 });
