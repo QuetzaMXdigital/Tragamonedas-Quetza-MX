@@ -40,7 +40,7 @@ function inicializarTablero() {
         let casilla = document.getElementById(`casilla-${i}`);
         if (casilla) {
             let tipo = mapaTablero[i];
-            casilla.innerText = catalogo[tipo].icono;
+            casilla.innerHTML = catalogo[tipo].icono;
         }
     }
 }
