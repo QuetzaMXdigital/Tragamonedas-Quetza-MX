@@ -159,3 +159,39 @@ function finalizarGiro(idCasillaGanadora) {
 }
 
 btnJugar.addEventListener("click", iniciarGiro);
+// --- 6. BOTÓN COBRAR (CASH OUT) ---
+const btnCobrar = document.querySelector(".btn-cobrar");
+
+btnCobrar.addEventListener("click", () => {
+    // Si la máquina está girando, bloqueamos el botón
+    if (enJuego) return;
+
+    // CASO 1: El usuario tiene apuestas puestas, pero no ha girado.
+    // Acción: Devolvemos las monedas de la apuesta a sus créditos.
+    if (apuestaTotal > 0) {
+        creditos += apuestaTotal; // Devolvemos el dinero
+        apuestaTotal = 0;         // Limpiamos el tablero de apuestas
+        apuestasActuales = { "Sandía": 0, "Estrella": 0, "Cereza": 0 };
+        
+        // Actualizamos las pantallas
+        displayCreditos.innerText = creditos;
+        displayApuesta.innerText = apuestaTotal;
+        
+        console.log("Apuesta cancelada. Monedas devueltas.");
+        return; // Detenemos la función aquí
+    }
+
+    // CASO 2: No hay apuestas activas. El usuario quiere retirar su dinero.
+    if (creditos > 0) {
+        let montoRetirado = creditos;
+        creditos = 0; // Vaciamos la máquina
+        displayCreditos.innerText = creditos;
+        
+        // Aquí es donde en el futuro llamaremos al Smart Contract de NEAR
+        // Por ahora, lanzamos una alerta visual de éxito
+        alert(`💰 ¡CA-CHING!\n\nHas cobrado: ${montoRetirado} Quetza Coins.\nSe han transferido a tu Wallet de Hormulz Pulse.`);
+        console.log(`Retiro exitoso de ${montoRetirado} QC.`);
+    } else {
+        alert("Tu saldo está en 0. ¡Recarga Quetza Coins para seguir jugando!");
+    }
+});
