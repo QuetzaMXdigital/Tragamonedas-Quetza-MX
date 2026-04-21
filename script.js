@@ -1,26 +1,26 @@
-// --- 1. CONFIGURACIÓN INICIAL ---
+// --- 1. CONFIGURACIÓN BÁSICA (SIN ACENTOS PARA EVITAR ERRORES) ---
 let saldoGlobal = 5000;
 let creditos = 0;
 let apuestaTotal = 0;
 let enJuego = false;
 
-let apuestasActuales = { "Sandía": 0, "Estrella": 0, "Cereza": 0 };
-const multiplicadores = { "Sandía": 20, "Estrella": 50, "Cereza": 2, "Tren": 0 };
+let apuestasActuales = { "sandia": 0, "estrella": 0, "cereza": 0 };
+const multiplicadores = { "sandia": 20, "estrella": 50, "cereza": 2, "tren": 0 };
 
 const mapaTablero = [
-    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren",
-    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía",
-    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren",
-    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía"
+    "tren", "cereza", "sandia", "cereza", "estrella", "cereza", "tren",
+    "sandia", "cereza", "estrella", "cereza", "sandia",
+    "tren", "cereza", "sandia", "cereza", "estrella", "cereza", "tren",
+    "sandia", "cereza", "estrella", "cereza", "sandia"
 ];
 
 const secuenciaLuz = [
     0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 23, 22, 21, 20, 19, 18, 17, 15, 13, 11, 9, 7
 ];
 
-const iconos = { "Tren": "🚂", "Cereza": "🍒", "Sandía": "🍉", "Estrella": "⭐" };
+const iconos = { "tren": "🚂", "cereza": "🍒", "sandia": "🍉", "estrella": "⭐" };
 
-// --- 2. ELEMENTOS UI ---
+// --- 2. CONEXIÓN CON LA PANTALLA ---
 const displaySaldoGlobal = document.getElementById("saldo-global");
 const displayCreditos = document.getElementById("creditos");
 const displayApuesta = document.getElementById("apuesta");
@@ -29,7 +29,7 @@ const btnJugar = document.getElementById("btn-jugar");
 const btnCobrar = document.querySelector(".btn-cobrar");
 const botonesApuesta = document.querySelectorAll(".btn-apuesta");
 
-// --- 3. INICIALIZACIÓN ---
+// --- 3. PINTAR EL TABLERO ---
 function inicializarTablero() {
     for (let i = 0; i < 24; i++) {
         let casilla = document.getElementById(`casilla-${i}`);
@@ -39,54 +39,50 @@ function inicializarTablero() {
             casilla.style.fontSize = "24px";
         }
     }
-    console.log("✅ Tablero de Frutas listo.");
 }
 inicializarTablero();
 
-// --- 4. LÓGICA DE APUESTAS ---
-botonesApuesta.forEach(boton => {
-    boton.addEventListener("click", () => {
-        if (enJuego) return;
-
-        // Detectar fruta de forma robusta
-        let contenido = boton.textContent.toLowerCase();
-        let fruta = "";
-        if (contenido.includes("sandía") || contenido.includes("sandia")) fruta = "Sandía";
-        else if (contenido.includes("estrella")) fruta = "Estrella";
-        else if (contenido.includes("cereza")) fruta = "Cereza";
-
-        if (!fruta) return;
-
-        // Lógica de cobro: Prioridad a créditos de la máquina, luego Saldo Global
-        if (creditos >= 1) {
-            creditos--;
-            procesarApuesta(fruta);
-        } else if (saldoGlobal >= 1) {
-            saldoGlobal--;
-            procesarApuesta(fruta);
-        } else {
-            alert("Saldo insuficiente en tu billetera Quetza.");
-        }
-    });
-});
-
-function procesarApuesta(fruta) {
-    apuestaTotal++;
-    apuestasActuales[fruta]++;
-    actualizarPantallas();
-    console.log(`🎰 Apuesta a ${fruta}: ${apuestasActuales[fruta]}`);
-}
-
+// --- 4. APOSTAR (LÓGICA BLINDADA) ---
 function actualizarPantallas() {
     displaySaldoGlobal.innerText = saldoGlobal;
     displayCreditos.innerText = creditos;
     displayApuesta.innerText = apuestaTotal;
 }
 
-// --- 5. MOTOR DE GIRO ---
+botonesApuesta.forEach(boton => {
+    boton.addEventListener("click", () => {
+        if (enJuego) return;
+
+        let contenido = boton.textContent.toLowerCase();
+        let fruta = "";
+        
+        // Detección a prueba de balas (busca solo partes de la palabra)
+        if (contenido.includes("sand")) fruta = "sandia";
+        else if (contenido.includes("estrella")) fruta = "estrella";
+        else if (contenido.includes("cereza")) fruta = "cereza";
+
+        if (!fruta) return;
+
+        // Cobro prioritario de la máquina, luego de la billetera global
+        if (creditos >= 1) {
+            creditos--;
+        } else if (saldoGlobal >= 1) {
+            saldoGlobal--;
+        } else {
+            alert("No tienes fondos suficientes.");
+            return;
+        }
+
+        apuestaTotal++;
+        apuestasActuales[fruta]++;
+        actualizarPantallas();
+        console.log(`Apuesta registrada a: ${fruta}. Llevas: ${apuestasActuales[fruta]}`);
+    });
+});
+
+// --- 5. EL MOTOR QUE GIRA ---
 btnJugar.addEventListener("click", () => {
     if (enJuego || apuestaTotal === 0) return;
-    
     enJuego = true;
     displayPremio.innerText = "0";
     btnJugar.style.opacity = "0.5";
@@ -94,7 +90,7 @@ btnJugar.addEventListener("click", () => {
     let posicionActual = 0;
     let vueltas = 0;
     const metaFinal = Math.floor(Math.random() * secuenciaLuz.length);
-    let velocidad = 60;
+    let velocidad = 50;
     let temporizador;
 
     function moverLuz() {
@@ -109,52 +105,74 @@ btnJugar.addEventListener("click", () => {
             vueltas++;
         }
 
+        // Frenado final
         if (vueltas >= 2 && posicionActual === metaFinal) {
             clearTimeout(temporizador);
             finalizarGiro(idCasillaActiva);
         } else {
-            if (vueltas >= 2) velocidad += 25;
+            if (vueltas >= 2) velocidad += 20;
             temporizador = setTimeout(moverLuz, velocidad);
         }
     }
     moverLuz();
 });
 
-// --- 6. PREMIOS Y COBROS ---
+// --- 6. RESOLUCIÓN DE PREMIOS ---
 function finalizarGiro(idGanador) {
-    let frutaGanadora = mapaTablero[idGanador];
+    let frutaGanadora = mapaTablero[idGanador]; // ej. "sandia"
     let apostado = apuestasActuales[frutaGanadora] || 0;
+
+    console.log(`La máquina se detuvo en: ${frutaGanadora}`);
 
     if (apostado > 0) {
         let premio = apostado * multiplicadores[frutaGanadora];
         creditos += premio;
         displayPremio.innerText = premio;
-        console.log(`🎉 ¡GANASTE! Cayó en ${frutaGanadora}. Premio: ${premio}`);
+        
+        // Alerta triunfal para que sea imposible ignorarlo
+        setTimeout(() => {
+            alert(`🎉 ¡GANASTE!\n\nLe atinaste a la ${iconos[frutaGanadora]}\nPremio: ${premio} créditos.`);
+        }, 100);
+    } else {
+        console.log("No tenías apuesta en esta figura.");
     }
 
-    // Limpiar ronda
+    // Resetear apuestas de la mesa
     apuestaTotal = 0;
-    apuestasActuales = { "Sandía": 0, "Estrella": 0, "Cereza": 0 };
+    apuestasActuales = { "sandia": 0, "estrella": 0, "cereza": 0 };
     actualizarPantallas();
-    
-    setTimeout(() => {
-        enJuego = false;
-        btnJugar.style.opacity = "1";
-    }, 1000);
+
+    // Efecto de parpadeo de la casilla ganadora
+    let parpadeos = 0;
+    let el = document.getElementById(`casilla-${idGanador}`);
+    let parpadeoTimer = setInterval(() => {
+        if(el) el.classList.toggle('activa');
+        parpadeos++;
+        if (parpadeos > 6) {
+            clearInterval(parpadeoTimer);
+            if(el) el.classList.add('activa');
+            enJuego = false;
+            btnJugar.style.opacity = "1";
+        }
+    }, 150);
 }
 
+// --- 7. BOTÓN COBRAR ---
 btnCobrar.addEventListener("click", () => {
     if (enJuego) return;
     
+    // Si tienes apuesta pero no giraste, te la regresa
     if (apuestaTotal > 0) {
         creditos += apuestaTotal;
         apuestaTotal = 0;
-        apuestasActuales = { "Sandía": 0, "Estrella": 0, "Cereza": 0 };
-        console.log("⏪ Apuesta devuelta a créditos.");
-    } else if (creditos > 0) {
-        saldoGlobal += creditos;
-        alert(`💰 Has cobrado ${creditos} QC a tu Billetera Global.`);
+        apuestasActuales = { "sandia": 0, "estrella": 0, "cereza": 0 };
+    } 
+    // Si tienes dinero ganado, se va a tu cuenta de Quetza
+    else if (creditos > 0) {
+        let monto = creditos;
+        saldoGlobal += monto;
         creditos = 0;
+        alert(`💰 ¡CA-CHING!\n\nCobraste ${monto} QC a tu Billetera Global.`);
     }
     actualizarPantallas();
 });
