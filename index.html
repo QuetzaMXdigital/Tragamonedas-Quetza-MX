@@ -3,71 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fruit Cocktail Demo - Jalisco Edition</title>
-  <link rel="stylesheet" href="style.css?v=4">
+    <title>Fruit Cocktail - Edición Jalisco</title>
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
-<nav class="global-header">
-    <div class="logo">QUETZA <span class="tag">Pulse</span></div>
-    <div class="wallet-info">
-        <span class="label">Billetera Global:</span>
-        <span id="saldo-global" class="balance">5000</span> <span class="currency">QC</span>
-    </div>
-</nav>
-    <div class="maquinita-container">
-        
-        <div class="marcadores">
-            <div class="display">PREMIO: <span id="premio">0</span></div>
-            <div class="display display-principal">CRÉDITOS: <span id="creditos">1000</span></div>
-            <div class="display">APUESTA: <span id="apuesta">0</span></div>
+    <nav class="global-header">
+        <div class="logo">QUETZA <span class="tag">Pulse</span></div>
+        <div class="wallet-info">
+            <span class="label">Billetera Global:</span>
+            <span id="saldo-global" class="balance">5000</span> <span class="currency">QC</span>
         </div>
-<div class="control-carga">
-    <button class="btn-accion btn-cargar" id="btn-cargar-100">Cargar 100 QC</button>
-</div>
+    </nav>
+
+    <div class="maquinita-container">
+        <div class="marcadores">
+            <div class="display">PREMIO DE SESIÓN: <span id="premio">0</span></div>
+            <div class="display">APUESTA MESA: <span id="apuesta-total">0</span></div>
+        </div>
+
         <div class="tablero">
             <div class="panel-central">
                 <h1>FRUIT COCKTAIL</h1>
-                <p>Quetza Conis</p>
-                </div>
-
-            <div class="casilla" id="casilla-0">0</div>
-            <div class="casilla" id="casilla-1">1</div>
-            <div class="casilla" id="casilla-2">2</div>
-            <div class="casilla" id="casilla-3">3</div>
-            <div class="casilla" id="casilla-4">4</div>
-            <div class="casilla" id="casilla-5">5</div>
-            <div class="casilla" id="casilla-6">6</div>
-            <div class="casilla" id="casilla-7">7</div>
-            <div class="casilla" id="casilla-8">8</div>
-            <div class="casilla" id="casilla-9">9</div>
-            <div class="casilla" id="casilla-10">10</div>
-            <div class="casilla" id="casilla-11">11</div>
-            <div class="casilla" id="casilla-12">12</div>
-            <div class="casilla" id="casilla-13">13</div>
-            <div class="casilla" id="casilla-14">14</div>
-            <div class="casilla" id="casilla-15">15</div>
-            <div class="casilla" id="casilla-16">16</div>
-            <div class="casilla" id="casilla-17">17</div>
-            <div class="casilla" id="casilla-18">18</div>
-            <div class="casilla" id="casilla-19">19</div>
-            <div class="casilla" id="casilla-20">20</div>
-            <div class="casilla" id="casilla-21">21</div>
-            <div class="casilla" id="casilla-22">22</div>
-            <div class="casilla" id="casilla-23">23</div>
+                <p>Edición Jalisco</p>
+            </div>
+            <div class="casilla" id="casilla-0"></div><div class="casilla" id="casilla-1"></div><div class="casilla" id="casilla-2"></div>
+            <div class="casilla" id="casilla-3"></div><div class="casilla" id="casilla-4"></div><div class="casilla" id="casilla-5"></div>
+            <div class="casilla" id="casilla-6"></div><div class="casilla" id="casilla-7"></div><div class="casilla" id="casilla-8"></div>
+            <div class="casilla" id="casilla-9"></div><div class="casilla" id="casilla-10"></div><div class="casilla" id="casilla-11"></div>
+            <div class="casilla" id="casilla-12"></div><div class="casilla" id="casilla-13"></div><div class="casilla" id="casilla-14"></div>
+            <div class="casilla" id="casilla-15"></div><div class="casilla" id="casilla-16"></div><div class="casilla" id="casilla-17"></div>
+            <div class="casilla" id="casilla-18"></div><div class="casilla" id="casilla-19"></div><div class="casilla" id="casilla-20"></div>
+            <div class="casilla" id="casilla-21"></div><div class="casilla" id="casilla-22"></div><div class="casilla" id="casilla-23"></div>
         </div>
 
-        <div class="controles">
-            <button class="btn-apuesta"><span style="font-size: 24px;">🍉</span><br>Sandía</button>
-            <button class="btn-apuesta"><span style="font-size: 24px;">⭐</span><br>Estrella</button>
-            <button class="btn-apuesta"><span style="font-size: 24px;">🍒</span><br>Cereza</button>
-            
-            <button class="btn-accion btn-cargar" id="btn-cargar">Depositar<br>100 QC</button>
-            
-            <button class="btn-accion btn-cobrar">Cobrar</button>
+        <div class="panel-apuestas">
+            </div>
+
+        <div class="controles-principales">
+            <button class="btn-accion btn-cobrar" id="btn-cobrar">COBRAR</button>
             <button class="btn-accion btn-jugar" id="btn-jugar">JUGAR</button>
         </div>
-
     </div>
-<script src="script.js?v=2"></script>
+
+    <script src="script.js?v=5"></script>
 </body>
 </html>
