@@ -1,3 +1,6 @@
+/* =========================================
+   1. RESETEO Y ESTILOS BASE
+========================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,7 +9,7 @@
 }
 
 body {
-    padding-top: 80px; /* El espacio para que el header no tape la máquina */
+    padding-top: 80px; /* Espacio para que la barra superior no tape el juego */
     background-color: #1a1a2e; /* Fondo oscuro tipo arcade */
     display: flex;
     justify-content: center;
@@ -15,6 +18,54 @@ body {
     color: white;
 }
 
+/* =========================================
+   2. BILLETERA GLOBAL (QUETZA HEADER)
+========================================= */
+.global-header {
+    background-color: #0f3460;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    width: 100%;
+    position: fixed; /* Esto hace que se quede pegada arriba */
+    top: 0;
+    left: 0;
+    border-bottom: 2px solid #e94560;
+    z-index: 1000;
+}
+
+.logo { 
+    font-weight: bold; 
+    font-size: 1.2rem; 
+    color: #fff; 
+}
+
+.logo .tag { 
+    color: #e94560; 
+    font-size: 0.8rem; 
+}
+
+.wallet-info {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 5px 15px;
+    border-radius: 20px;
+    border: 1px solid #444;
+}
+
+.balance { 
+    color: #00ff88; 
+    font-weight: bold; 
+}
+
+.currency { 
+    color: #ffd700; 
+    font-size: 0.8rem; 
+}
+
+/* =========================================
+   3. CONTENEDOR PRINCIPAL DE LA MÁQUINA
+========================================= */
 .maquinita-container {
     background: linear-gradient(180deg, #0f3460 0%, #16213e 100%);
     padding: 20px;
@@ -25,7 +76,9 @@ body {
     width: 100%;
 }
 
-/* Marcadores Superiores (Estilo números digitales) */
+/* =========================================
+   4. MARCADORES SUPERIORES
+========================================= */
 .marcadores {
     display: flex;
     justify-content: space-between;
@@ -47,11 +100,13 @@ body {
 }
 
 .display-principal {
-    color: #ffd700; /* Dorado para el balance principal */
+    color: #ffd700; 
     font-size: 16px;
 }
 
-/* LA MAGIA DEL GRID */
+/* =========================================
+   5. EL TABLERO Y LAS CASILLAS (GRID)
+========================================= */
 .tablero {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -61,10 +116,9 @@ body {
     padding: 10px;
     border-radius: 10px;
     border: 3px solid #ffd700;
-    aspect-ratio: 1 / 1; /* Mantiene el tablero cuadrado */
+    aspect-ratio: 1 / 1; 
 }
 
-/* Casillas del perímetro */
 .casilla {
     background-color: #fff;
     color: #000;
@@ -77,59 +131,7 @@ body {
     transition: all 0.1s;
 }
 
-/* Clase que usaremos en JS para encender la luz */
 .casilla.activa {
     background-color: #ffff00;
     box-shadow: 0 0 15px #ffff00;
-    transform: scale(1.05);
-    border-color: #ffaa00;
-}
-
-/* El Centro Hueco */
-.panel-central {
-    grid-column: 2 / 7; /* Abarca de la columna 2 a la 6 */
-    grid-row: 2 / 7;    /* Abarca de la fila 2 a la 6 */
-    background-color: #000;
-    border: 3px solid #444;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    text-align: center;
-}
-
-.panel-central h1 {
-    color: #ff00ff;
-    text-shadow: 2px 2px #000;
-    font-size: 24px;
-}
-
-/* Botonera */
-.controles {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-button {
-    padding: 15px;
-    border: none;
-    border-radius: 50%; /* Botones circulares clásicos */
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 5px #333;
-    transition: 0.1s;
-}
-
-button:active {
-    transform: translateY(4px);
-    box-shadow: 0 1px #333;
-}
-
-.btn-apuesta { background-color: #4CAF50; color: white; width: 60px; height: 60px; font-size: 10px;}
-.btn-cobrar { background-color: #2196F3; color: white; width: 80px; height: 80px; }
-.btn-jugar { background-color: #f44336; color: white; width: 90px; height: 90px; font-size: 16px;}
+    transform: scale(1.0
