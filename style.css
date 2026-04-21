@@ -212,3 +212,19 @@ body {
 .controles button:hover {
     filter: brightness(1.1); /* Brilla un poco al pasar el mouse */
 }
+.btn-cargar {
+    background-color: #27ae60;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 2px solid #2ecc71;
+    box-shadow: 0 4px #1e8449;
+    margin-top: 10px;
+}
+
+.btn-cargar:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px #1e8449;
+}
