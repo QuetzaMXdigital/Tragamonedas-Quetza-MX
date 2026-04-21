@@ -3,16 +3,16 @@ let saldoGlobal = 5000;
 let premioSesion = 0;
 let enJuego = false;
 
-// Catálogo de símbolos, multiplicadores y RTP (Probabilidad de salir)
+// Catálogo actualizado con IMÁGENES reales
 const catalogo = {
-    "exit":     { icono: "❌", multi: 0,  peso: 35 },
-    "manzana":  { icono: "🍎", multi: 3,  peso: 25 },
-    "naranja":  { icono: "🍊", multi: 5,  peso: 15 },
-    "sandia":   { icono: "🍉", multi: 10, peso: 10 },
-    "limon":    { icono: "🍋", multi: 15, peso: 8  },
-    "fresa":    { icono: "🍓", multi: 20, peso: 4  },
-    "estrella": { icono: "⭐", multi: 30, peso: 2  },
-    "tren":     { icono: "🚂", multi: 50, peso: 1  } 
+    "exit":     { icono: "<img src='exit.png' alt='Exit'>", multi: 0,  peso: 35 },
+    "manzana":  { icono: "<img src='manzana.png' alt='Manzana'>", multi: 3,  peso: 25 },
+    "naranja":  { icono: "<img src='naranja.png' alt='Naranja'>", multi: 5,  peso: 15 },
+    "sandia":   { icono: "<img src='sandia.png' alt='Sandía'>", multi: 10, peso: 10 },
+    "limon":    { icono: "<img src='limon.png' alt='Limón'>", multi: 15, peso: 8  },
+    "fresa":    { icono: "<img src='fresa.png' alt='Fresa'>", multi: 20, peso: 4  },
+    "estrella": { icono: "<img src='estrella.png' alt='Estrella'>", multi: 30, peso: 2  },
+    "tren":     { icono: "<img src='tren.png' alt='Tren'>", multi: 50, peso: 1  } 
 };
 
 let apuestas = { manzana: 0, naranja: 0, sandia: 0, limon: 0, fresa: 0, estrella: 0, tren: 0 };
