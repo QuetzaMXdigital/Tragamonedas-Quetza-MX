@@ -1,12 +1,11 @@
 // ==========================================
 // 1. ECONOMÍA GLOBAL Y CONFIGURACIÓN
 // ==========================================
-let saldoGlobal = 5000;         // Dinero del Jugador
-let pozoDeLaCasa = 100000;      // Liquidez del Casino (La Casa)
-let ultimoPremio = 0;           // Mostrar ganancia del último giro
+let saldoGlobal = 5000;
+let pozoDeLaCasa = 100000;
+let ultimoPremio = 0;
 let enJuego = false;
 
-// Catálogo de símbolos: Iconos, Multiplicadores y Probabilidad (RTP)
 const catalogo = {
     "exit":     { icono: "<img src='exit.png' alt='Exit'>", multi: 0,  peso: 35 },
     "manzana":  { icono: "<img src='manzana.png' alt='Manzana'>", multi: 3,  peso: 25 },
@@ -18,10 +17,8 @@ const catalogo = {
     "tren":     { icono: "<img src='tren.png' alt='Tren'>", multi: 50, peso: 1  } 
 };
 
-// La mesa de apuestas actual
 let apuestas = { manzana: 0, naranja: 0, sandia: 0, limon: 0, fresa: 0, estrella: 0, tren: 0 };
 
-// Mapa visual del tablero (24 casillas)
 const mapaTablero = [
     "exit", "manzana", "naranja", "limon", "sandia", "fresa", "exit", 
     "manzana", "estrella", "naranja", "limon", "manzana",              
@@ -29,7 +26,6 @@ const mapaTablero = [
     "exit", "manzana", "naranja", "limon", "sandia", "fresa", "exit"  
 ];
 
-// Ruta que sigue la luz alrededor del grid
 const secuenciaLuz = [0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 23, 22, 21, 20, 19, 18, 17, 15, 13, 11, 9, 7];
 
 // ==========================================
@@ -41,6 +37,22 @@ const domApuestaTotal = document.getElementById("apuesta-total");
 const panelApuestas = document.querySelector(".panel-apuestas");
 const btnJugar = document.getElementById("btn-jugar");
 const btnCobrar = document.getElementById("btn-cobrar");
+
+// ==========================================
+// 2.5 CONTROLADOR DE AUDIO (¡NUEVO!)
+// ==========================================
+const sonidoMoneda = document.getElementById("audio-moneda");
+const sonidoGiro = document.getElementById("audio-giro");
+const sonidoPremio = document.getElementById("audio-premio");
+const sonidoCobrar = document.getElementById("audio-cobrar");
+
+// Función para reproducir sin que se corte si das clics muy rápido
+function reproducirSonido(audioElement) {
+    if(audioElement) {
+        audioElement.currentTime = 0; // Regresa el sonido al inicio instantáneamente
+        audioElement.play().catch(e => console.log("Navegador bloqueó el auto-play de audio."));
+    }
+}
 
 // ==========================================
 // 3. INICIALIZACIÓN DEL JUEGO
@@ -78,20 +90,20 @@ inicializarControles();
 actualizarPantallas();
 
 // ==========================================
-// 4. CONFIGURAR MESA DE APUESTAS (Botones +/-)
+// 4. CONFIGURAR MESA DE APUESTAS
 // ==========================================
 window.ajustarApuesta = function(fruta, cantidad) {
     if (enJuego) return;
 
     let nuevaApuesta = apuestas[fruta] + cantidad;
     
-    // Validar que la apuesta no sea negativa ni exceda el saldo disponible
     if (nuevaApuesta >= 0) {
         let costoSimulado = Object.values(apuestas).reduce((a, b) => a + b, 0) - apuestas[fruta] + nuevaApuesta;
         if (costoSimulado <= saldoGlobal) {
             apuestas[fruta] = nuevaApuesta;
+            reproducirSonido(sonidoMoneda); // <-- ¡SUENA LA MONEDA AL APOSTAR!
         } else {
-            alert("No tienes suficiente saldo para subir más esta apuesta.");
+            alert("No tienes suficiente saldo.");
         }
     }
     actualizarPantallas();
@@ -100,7 +112,6 @@ window.ajustarApuesta = function(fruta, cantidad) {
 function actualizarPantallas() {
     domSaldo.innerText = saldoGlobal;
     domPremio.innerText = ultimoPremio;
-    
     let totalApostado = 0;
     Object.keys(apuestas).forEach(f => {
         let spanMonto = document.getElementById(`monto-${f}`);
@@ -110,14 +121,10 @@ function actualizarPantallas() {
     domApuestaTotal.innerText = totalApostado;
 }
 
-// ==========================================
-// 5. CEREBRO MATEMÁTICO (VENTAJA DE LA CASA)
-// ==========================================
 function elegirCasillaConVentaja() {
     let rng = Math.random() * 100;
     let acumulado = 0;
     let frutaElegida = "exit";
-
     for (let clave in catalogo) {
         acumulado += catalogo[clave].peso;
         if (rng <= acumulado) {
@@ -125,7 +132,6 @@ function elegirCasillaConVentaja() {
             break;
         }
     }
-
     let opciones = [];
     for (let i = 0; i < mapaTablero.length; i++) {
         if (mapaTablero[i] === frutaElegida) opciones.push(i);
@@ -134,21 +140,18 @@ function elegirCasillaConVentaja() {
 }
 
 // ==========================================
-// 6. FLUJO DE DINERO: EL GIRO (JUGAR)
+// 6. EL GIRO Y LOS SONIDOS
 // ==========================================
 btnJugar.addEventListener("click", () => {
     let totalMesa = Object.values(apuestas).reduce((a, b) => a + b, 0);
     if (enJuego || totalMesa === 0) return;
 
-    // --- TRANSACCIÓN 1: EL JUGADOR PAGA A LA CASA ---
     if (saldoGlobal >= totalMesa) {
-        saldoGlobal -= totalMesa;         // Se le descuenta al jugador
-        pozoDeLaCasa += totalMesa;        // ¡El dinero entra a tu casino!
-        ultimoPremio = 0;                 // Limpiamos el premio del turno anterior
-        
-        console.log(`🏦 La Casa Recibe: +${totalMesa} QC | Pozo Actual: ${pozoDeLaCasa} QC`);
+        saldoGlobal -= totalMesa;
+        pozoDeLaCasa += totalMesa;
+        ultimoPremio = 0;
     } else {
-        alert("⚠️ Saldo insuficiente en tu Billetera Global.");
+        alert("⚠️ Saldo insuficiente.");
         return;
     }
 
@@ -169,6 +172,9 @@ btnJugar.addEventListener("click", () => {
         let el = document.getElementById(`casilla-${idActiva}`);
         if(el) el.classList.add('activa');
 
+        // <-- ¡SUENA EL TIC DEL GIRO EN CADA CASILLA!
+        reproducirSonido(sonidoGiro); 
+
         posicionActual++;
         if (posicionActual >= secuenciaLuz.length) {
             posicionActual = 0;
@@ -186,24 +192,19 @@ btnJugar.addEventListener("click", () => {
     moverLuz();
 });
 
-// ==========================================
-// 7. FLUJO DE DINERO: LOS PREMIOS
-// ==========================================
 function finalizarGiro(idGanador) {
     let frutaGanadora = mapaTablero[idGanador];
+    let gano = false;
     
-    // --- TRANSACCIÓN 2: LA CASA PAGA AL JUGADOR ---
     if (frutaGanadora !== "exit" && apuestas[frutaGanadora] > 0) {
         let ganancia = apuestas[frutaGanadora] * catalogo[frutaGanadora].multi;
+        pozoDeLaCasa -= ganancia;
+        ultimoPremio = ganancia;
+        saldoGlobal += ganancia;
+        gano = true;
         
-        pozoDeLaCasa -= ganancia;         // El dinero sale de tu casino
-        ultimoPremio = ganancia;          // Se muestra en pantalla
-        saldoGlobal += ganancia;          // Se va a la billetera del jugador
-        
-        console.log(`💸 La Casa Paga: -${ganancia} QC | Pozo Actual: ${pozoDeLaCasa} QC`);
+        reproducirSonido(sonidoPremio); // <-- ¡SUENA EL PREMIO MAYOR!
         actualizarPantallas();
-    } else {
-        console.log(`📉 Jugador Pierde. | Pozo Actual: ${pozoDeLaCasa} QC`);
     }
 
     let parpadeos = 0;
@@ -217,10 +218,9 @@ function finalizarGiro(idGanador) {
             enJuego = false;
             btnJugar.style.opacity = "1";
             
-            // Alerta visual de victoria
-            if (ultimoPremio > 0) {
+            if (gano) {
                 setTimeout(() => {
-                    alert(`🎉 ¡BINGO!\nSe han sumado ${ultimoPremio} QC directo a tu Billetera.`);
+                    alert(`🎉 ¡BINGO!\nGanaste ${ultimoPremio} QC.`);
                 }, 100);
             }
         }
@@ -233,9 +233,8 @@ function finalizarGiro(idGanador) {
 btnCobrar.addEventListener("click", () => {
     if (enJuego) return;
     
-    // Pone todas las apuestas de la mesa en 0
+    reproducirSonido(sonidoCobrar); // <-- ¡SUENA LA CAJA REGISTRADORA!
     Object.keys(apuestas).forEach(f => apuestas[f] = 0);
     ultimoPremio = 0;
-    
     actualizarPantallas();
 });
