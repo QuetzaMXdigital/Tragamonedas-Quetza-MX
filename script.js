@@ -1,4 +1,4 @@
-// --- 1. CONFIGURACIÓN BÁSICA (SIN ACENTOS PARA EVITAR ERRORES) ---
+// --- 1. CONFIGURACIÓN BÁSICA ---
 let saldoGlobal = 5000;
 let creditos = 0;
 let apuestaTotal = 0;
@@ -25,8 +25,10 @@ const displaySaldoGlobal = document.getElementById("saldo-global");
 const displayCreditos = document.getElementById("creditos");
 const displayApuesta = document.getElementById("apuesta");
 const displayPremio = document.getElementById("premio");
+
 const btnJugar = document.getElementById("btn-jugar");
 const btnCobrar = document.querySelector(".btn-cobrar");
+const btnCargar = document.getElementById("btn-cargar"); // <-- NUEVO BOTÓN
 const botonesApuesta = document.querySelectorAll(".btn-apuesta");
 
 // --- 3. PINTAR EL TABLERO ---
@@ -42,13 +44,29 @@ function inicializarTablero() {
 }
 inicializarTablero();
 
-// --- 4. APOSTAR (LÓGICA BLINDADA) ---
 function actualizarPantallas() {
     displaySaldoGlobal.innerText = saldoGlobal;
     displayCreditos.innerText = creditos;
     displayApuesta.innerText = apuestaTotal;
 }
 
+// --- 4. NUEVO: SISTEMA DE DEPÓSITO ---
+if (btnCargar) {
+    btnCargar.addEventListener("click", () => {
+        if (enJuego) return; // No depositar si la máquina está girando
+        
+        if (saldoGlobal >= 100) {
+            saldoGlobal -= 100;
+            creditos += 100;
+            actualizarPantallas();
+            console.log("💰 Depositaste 100 QC a la máquina");
+        } else {
+            alert("No tienes suficientes Quetza Coins en tu Billetera Global.");
+        }
+    });
+}
+
+// --- 5. APOSTAR ---
 botonesApuesta.forEach(boton => {
     boton.addEventListener("click", () => {
         if (enJuego) return;
@@ -56,31 +74,30 @@ botonesApuesta.forEach(boton => {
         let contenido = boton.textContent.toLowerCase();
         let fruta = "";
         
-        // Detección a prueba de balas (busca solo partes de la palabra)
         if (contenido.includes("sand")) fruta = "sandia";
         else if (contenido.includes("estrella")) fruta = "estrella";
         else if (contenido.includes("cereza")) fruta = "cereza";
 
         if (!fruta) return;
 
-        // Cobro prioritario de la máquina, luego de la billetera global
+        // Ahora forzamos a que use primero los créditos de la máquina
         if (creditos >= 1) {
             creditos--;
         } else if (saldoGlobal >= 1) {
+            // Si la máquina está en 0, toma directo de la billetera por comodidad
             saldoGlobal--;
         } else {
-            alert("No tienes fondos suficientes.");
+            alert("¡Necesitas depositar fondos primero!");
             return;
         }
 
         apuestaTotal++;
         apuestasActuales[fruta]++;
         actualizarPantallas();
-        console.log(`Apuesta registrada a: ${fruta}. Llevas: ${apuestasActuales[fruta]}`);
     });
 });
 
-// --- 5. EL MOTOR QUE GIRA ---
+// --- 6. EL MOTOR QUE GIRA ---
 btnJugar.addEventListener("click", () => {
     if (enJuego || apuestaTotal === 0) return;
     enJuego = true;
@@ -105,7 +122,6 @@ btnJugar.addEventListener("click", () => {
             vueltas++;
         }
 
-        // Frenado final
         if (vueltas >= 2 && posicionActual === metaFinal) {
             clearTimeout(temporizador);
             finalizarGiro(idCasillaActiva);
@@ -117,32 +133,25 @@ btnJugar.addEventListener("click", () => {
     moverLuz();
 });
 
-// --- 6. RESOLUCIÓN DE PREMIOS ---
+// --- 7. RESOLUCIÓN DE PREMIOS ---
 function finalizarGiro(idGanador) {
-    let frutaGanadora = mapaTablero[idGanador]; // ej. "sandia"
+    let frutaGanadora = mapaTablero[idGanador];
     let apostado = apuestasActuales[frutaGanadora] || 0;
-
-    console.log(`La máquina se detuvo en: ${frutaGanadora}`);
 
     if (apostado > 0) {
         let premio = apostado * multiplicadores[frutaGanadora];
         creditos += premio;
         displayPremio.innerText = premio;
         
-        // Alerta triunfal para que sea imposible ignorarlo
         setTimeout(() => {
             alert(`🎉 ¡GANASTE!\n\nLe atinaste a la ${iconos[frutaGanadora]}\nPremio: ${premio} créditos.`);
         }, 100);
-    } else {
-        console.log("No tenías apuesta en esta figura.");
     }
 
-    // Resetear apuestas de la mesa
     apuestaTotal = 0;
     apuestasActuales = { "sandia": 0, "estrella": 0, "cereza": 0 };
     actualizarPantallas();
 
-    // Efecto de parpadeo de la casilla ganadora
     let parpadeos = 0;
     let el = document.getElementById(`casilla-${idGanador}`);
     let parpadeoTimer = setInterval(() => {
@@ -157,17 +166,15 @@ function finalizarGiro(idGanador) {
     }, 150);
 }
 
-// --- 7. BOTÓN COBRAR ---
+// --- 8. BOTÓN COBRAR ---
 btnCobrar.addEventListener("click", () => {
     if (enJuego) return;
     
-    // Si tienes apuesta pero no giraste, te la regresa
     if (apuestaTotal > 0) {
         creditos += apuestaTotal;
         apuestaTotal = 0;
         apuestasActuales = { "sandia": 0, "estrella": 0, "cereza": 0 };
     } 
-    // Si tienes dinero ganado, se va a tu cuenta de Quetza
     else if (creditos > 0) {
         let monto = creditos;
         saldoGlobal += monto;
@@ -175,26 +182,4 @@ btnCobrar.addEventListener("click", () => {
         alert(`💰 ¡CA-CHING!\n\nCobraste ${monto} QC a tu Billetera Global.`);
     }
     actualizarPantallas();
-});
-// --- 9. SISTEMA DE RECARGA (DEPÓSITO) ---
-const btnCargar = document.getElementById("btn-cargar-100");
-
-btnCargar.addEventListener("click", () => {
-    if (enJuego) return;
-
-    const montoARecargar = 100; // Monto fijo por clic, podrías usar un input
-
-    if (saldoGlobal >= montoARecargar) {
-        // Ejecutar la transferencia
-        saldoGlobal -= montoARecargar;
-        creditos += montoARecargar;
-        
-        // Actualizar visualmente ambos saldos
-        actualizarPantallas();
-        
-        console.log(`✅ Depósito exitoso: ${montoARecargar} QC movidos al juego.`);
-        // Opcional: un pequeño sonido de monedas
-    } else {
-        alert("⚠️ No tienes suficiente saldo en tu Billetera Global de Quetza.");
-    }
 });
