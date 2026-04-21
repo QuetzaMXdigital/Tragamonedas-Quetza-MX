@@ -31,7 +31,7 @@ body {
     position: fixed; /* Fijada arriba */
     top: 0;
     left: 0;
-    border-bottom: 2px solid #e94560;
+    border-bottom: 2px solid #e4e945;
     z-index: 1000;
 }
 
