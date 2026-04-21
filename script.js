@@ -18,12 +18,27 @@ const multiplicadores = {
     "Tren": 0 
 };
 
-const mapaTablero = [
-    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren",
-    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía",
-    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren",
-    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía"
-];
+// --- DICCIONARIO DE SÍMBOLOS (EMOJIS TEMPORALES) ---
+const iconos = {
+    "Tren": "🚂",
+    "Cereza": "🍒",
+    "Sandía": "🍉",
+    "Estrella": "⭐"
+};
+
+// Función que pinta el tablero al cargar la página
+function inicializarTablero() {
+    for (let i = 0; i < 24; i++) {
+        let casilla = document.getElementById(`casilla-${i}`);
+        let figura = mapaTablero[i]; // Busca qué figura toca en esta posición
+        
+        casilla.innerText = iconos[figura]; // Pone el emoji correspondiente
+        casilla.style.fontSize = "28px";    // Hace el emoji grande y visible
+    }
+}
+
+// Ejecutamos la función inmediatamente
+inicializarTablero();
 
 const secuenciaLuz = [
     0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 23, 22, 21, 20, 19, 18, 17, 15, 13, 11, 9, 7
