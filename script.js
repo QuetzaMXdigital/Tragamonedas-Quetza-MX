@@ -1,96 +1,88 @@
-// --- 1. VARIABLES Y CONFIGURACIÓN ---
-let creditos = 1000;
+// --- 1. VARIABLES Y CONFIGURACIÓN (EL CEREBRO FINANCIERO) ---
+let saldoGlobal = 5000; // Saldo en tu portafolio de Quetza
+let creditos = 0;       // Créditos cargados en la maquinita
 let apuestaTotal = 0;
 let enJuego = false;
 
-// Registro de cuánto apostó el jugador a cada figura en esta ronda
+// Registro de apuestas por símbolo
 let apuestasActuales = {
     "Sandía": 0,
     "Estrella": 0,
     "Cereza": 0
 };
 
-// Tabla de multiplicadores (Lo que paga cada figura)
 const multiplicadores = {
     "Sandía": 20,
     "Estrella": 50,
     "Cereza": 2,
-    "Tren": 0 // El tren te hace perder
+    "Tren": 0 
 };
 
-// Mapeo del tablero: Le decimos qué figura hay en cada casilla (del 0 al 23)
-// Las posiciones 0, 6, 12 y 18 suelen ser las esquinas (Los Trenes/Exit)
 const mapaTablero = [
-    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren", // Arriba
-    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía",                 // Derecha
-    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren", // Abajo
-    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía"                  // Izquierda
+    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren",
+    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía",
+    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren",
+    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía"
 ];
 
-// Secuencia de giro (el orden de los IDs en el HTML)
 const secuenciaLuz = [
     0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 23, 22, 21, 20, 19, 18, 17, 15, 13, 11, 9, 7
 ];
 
-
-// --- 2. ELEMENTOS DE LA PANTALLA ---
-const btnJugar = document.getElementById("btn-jugar");
+// --- 2. ELEMENTOS DE LA PANTALLA (CONEXIÓN CON EL HTML) ---
+const displaySaldoGlobal = document.getElementById("saldo-global"); // La barra superior
 const displayCreditos = document.getElementById("creditos");
 const displayApuesta = document.getElementById("apuesta");
 const displayPremio = document.getElementById("premio");
-
-// Botones de apuesta (Seleccionamos todos los botones con la clase 'btn-apuesta')
+const btnJugar = document.getElementById("btn-jugar");
+const btnCobrar = document.querySelector(".btn-cobrar");
 const botonesApuesta = document.querySelectorAll(".btn-apuesta");
 
-
 // --- 3. LÓGICA DE APUESTAS ---
-// Le asignamos la función de apostar a cada botón verde
 botonesApuesta.forEach(boton => {
     boton.addEventListener("click", () => {
-        if (enJuego) return; // No puede apostar mientras gira
+        if (enJuego) return;
         
+        // Primero intentamos usar créditos de la máquina, si no hay, jalamos del saldo global
         if (creditos >= 1) {
             let frutaSeleccionada = boton.innerText;
-            
-            // Restar crédito y sumar a la apuesta
             creditos--;
             apuestaTotal++;
             apuestasActuales[frutaSeleccionada]++;
             
-            // Actualizar la pantalla
             displayCreditos.innerText = creditos;
             displayApuesta.innerText = apuestaTotal;
+        } else if (saldoGlobal >= 1) {
+            // Carga automática desde la billetera si la máquina está en 0
+            let frutaSeleccionada = boton.innerText;
+            saldoGlobal--;
+            apuestaTotal++;
+            apuestasActuales[frutaSeleccionada]++;
             
-            console.log(`Apostaste a: ${frutaSeleccionada}. Llevas: ${apuestasActuales[frutaSeleccionada]}`);
+            displaySaldoGlobal.innerText = saldoGlobal;
+            displayApuesta.innerText = apuestaTotal;
         } else {
-            alert("No tienes suficientes créditos.");
+            alert("No tienes fondos suficientes en tu portafolio.");
         }
     });
 });
 
-
 // --- 4. MOTOR DE GIRO ---
 function iniciarGiro() {
-    if (enJuego) return;
-    if (apuestaTotal === 0) {
-        alert("¡Debes apostar al menos a una figura antes de jugar!");
-        return;
-    }
+    if (enJuego || apuestaTotal === 0) return;
     
     enJuego = true;
-    displayPremio.innerText = "0"; // Reiniciamos el premio visual
+    displayPremio.innerText = "0";
     btnJugar.style.opacity = "0.5";
 
     let posicionActual = 0;
     let vueltas = 0;
-    // RNG: Elegir una casilla final al azar
     const metaFinal = Math.floor(Math.random() * secuenciaLuz.length); 
     let velocidad = 50; 
     let temporizador;
 
     function moverLuz() {
         document.querySelectorAll('.casilla').forEach(c => c.classList.remove('activa'));
-
         let idCasillaActiva = secuenciaLuz[posicionActual];
         document.getElementById(`casilla-${idCasillaActiva}`).classList.add('activa');
 
@@ -100,7 +92,6 @@ function iniciarGiro() {
             vueltas++;
         }
 
-        // Frenado
         if (vueltas >= 2 && posicionActual === metaFinal) {
             clearTimeout(temporizador);
             finalizarGiro(idCasillaActiva);
@@ -109,41 +100,25 @@ function iniciarGiro() {
             temporizador = setTimeout(moverLuz, velocidad);
         }
     }
-
     moverLuz();
 }
 
-
 // --- 5. RESOLUCIÓN DE PREMIOS ---
 function finalizarGiro(idCasillaGanadora) {
-    // 1. Averiguamos qué fruta hay en esa casilla
     let frutaGanadora = mapaTablero[idCasillaGanadora];
-    console.log(`¡Cayó en la casilla ${idCasillaGanadora}, que es: ${frutaGanadora}!`);
-
-    // 2. Revisamos si el usuario apostó a esa fruta
     let monedasApostadas = apuestasActuales[frutaGanadora] || 0;
     
     if (monedasApostadas > 0) {
-        // ¡Ganó! Calculamos el premio
-        let multiplicador = multiplicadores[frutaGanadora];
-        let premioTotal = monedasApostadas * multiplicador;
-        
-        creditos += premioTotal; // Le sumamos las ganancias
-        displayPremio.innerText = premioTotal; // Mostramos el premio
-        console.log(`¡GANASTE! ${premioTotal} créditos.`);
-    } else {
-        console.log("No apostaste a esta figura. Suerte para la próxima.");
+        let premioTotal = monedasApostadas * multiplicadores[frutaGanadora];
+        creditos += premioTotal; 
+        displayPremio.innerText = premioTotal;
     }
 
-    // 3. Reiniciamos la máquina para la siguiente ronda
     apuestaTotal = 0;
     apuestasActuales = { "Sandía": 0, "Estrella": 0, "Cereza": 0 };
-    
-    // Actualizamos pantallas
     displayCreditos.innerText = creditos;
     displayApuesta.innerText = apuestaTotal;
     
-    // Parpadeo de la casilla ganadora
     let parpadeos = 0;
     let parpadeoTimer = setInterval(() => {
         let elemento = document.getElementById(`casilla-${idCasillaGanadora}`);
@@ -158,40 +133,30 @@ function finalizarGiro(idCasillaGanadora) {
     }, 200);
 }
 
-btnJugar.addEventListener("click", iniciarGiro);
-// --- 6. BOTÓN COBRAR (CASH OUT) ---
-const btnCobrar = document.querySelector(".btn-cobrar");
-
+// --- 6. BOTÓN COBRAR (SACA EL DINERO DE LA MAQUINA AL PORTAFOLIO GLOBAL) ---
 btnCobrar.addEventListener("click", () => {
-    // Si la máquina está girando, bloqueamos el botón
     if (enJuego) return;
 
-    // CASO 1: El usuario tiene apuestas puestas, pero no ha girado.
-    // Acción: Devolvemos las monedas de la apuesta a sus créditos.
     if (apuestaTotal > 0) {
-        creditos += apuestaTotal; // Devolvemos el dinero
-        apuestaTotal = 0;         // Limpiamos el tablero de apuestas
+        // Devolver apuesta a créditos de la máquina
+        creditos += apuestaTotal;
+        apuestaTotal = 0;
         apuestasActuales = { "Sandía": 0, "Estrella": 0, "Cereza": 0 };
-        
-        // Actualizamos las pantallas
         displayCreditos.innerText = creditos;
         displayApuesta.innerText = apuestaTotal;
-        
-        console.log("Apuesta cancelada. Monedas devueltas.");
-        return; // Detenemos la función aquí
+        return;
     }
 
-    // CASO 2: No hay apuestas activas. El usuario quiere retirar su dinero.
     if (creditos > 0) {
-        let montoRetirado = creditos;
-        creditos = 0; // Vaciamos la máquina
-        displayCreditos.innerText = creditos;
+        let montoARetirar = creditos;
+        creditos = 0;
+        saldoGlobal += montoARetirar; // Aquí ocurre la magia: el dinero sube a la billetera global
         
-        // Aquí es donde en el futuro llamaremos al Smart Contract de NEAR
-        // Por ahora, lanzamos una alerta visual de éxito
-        alert(`💰 ¡CA-CHING!\n\nHas cobrado: ${montoRetirado} Quetza Coins.\nSe han transferido a tu Wallet de Hormulz Pulse.`);
-        console.log(`Retiro exitoso de ${montoRetirado} QC.`);
-    } else {
-        alert("Tu saldo está en 0. ¡Recarga Quetza Coins para seguir jugando!");
+        displayCreditos.innerText = creditos;
+        displaySaldoGlobal.innerText = saldoGlobal;
+        
+        alert(`💰 ¡Cobro exitoso!\nHas enviado ${montoARetirar} QC a tu Billetera Global.`);
     }
 });
+
+btnJugar.addEventListener("click", iniciarGiro);
