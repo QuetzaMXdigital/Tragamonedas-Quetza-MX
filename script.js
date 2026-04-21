@@ -1,24 +1,24 @@
-// --- 1. VARIABLES Y CONFIGURACIÓN (EL CEREBRO FINANCIERO) ---
-let saldoGlobal = 5000; // Saldo en tu portafolio de Quetza
-let creditos = 0;       // Créditos cargados en la maquinita
+// --- 1. VARIABLES GLOBALES FINANCIERAS ---
+let saldoGlobal = 5000;
+let creditos = 0;
 let apuestaTotal = 0;
 let enJuego = false;
 
-// Registro de apuestas por símbolo
-let apuestasActuales = {
-    "Sandía": 0,
-    "Estrella": 0,
-    "Cereza": 0
-};
+let apuestasActuales = { "Sandía": 0, "Estrella": 0, "Cereza": 0 };
+const multiplicadores = { "Sandía": 20, "Estrella": 50, "Cereza": 2, "Tren": 0 };
 
-const multiplicadores = {
-    "Sandía": 20,
-    "Estrella": 50,
-    "Cereza": 2,
-    "Tren": 0 
-};
+// --- 2. CONFIGURACIÓN DEL TABLERO ---
+const mapaTablero = [
+    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren",
+    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía",
+    "Tren", "Cereza", "Sandía", "Cereza", "Estrella", "Cereza", "Tren",
+    "Sandía", "Cereza", "Estrella", "Cereza", "Sandía"
+];
 
-// --- DICCIONARIO DE SÍMBOLOS (EMOJIS TEMPORALES) ---
+const secuenciaLuz = [
+    0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 23, 22, 21, 20, 19, 18, 17, 15, 13, 11, 9, 7
+];
+
 const iconos = {
     "Tren": "🚂",
     "Cereza": "🍒",
@@ -26,26 +26,8 @@ const iconos = {
     "Estrella": "⭐"
 };
 
-// Función que pinta el tablero al cargar la página
-function inicializarTablero() {
-    for (let i = 0; i < 24; i++) {
-        let casilla = document.getElementById(`casilla-${i}`);
-        let figura = mapaTablero[i]; // Busca qué figura toca en esta posición
-        
-        casilla.innerText = iconos[figura]; // Pone el emoji correspondiente
-        casilla.style.fontSize = "28px";    // Hace el emoji grande y visible
-    }
-}
-
-// Ejecutamos la función inmediatamente
-inicializarTablero();
-
-const secuenciaLuz = [
-    0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 23, 22, 21, 20, 19, 18, 17, 15, 13, 11, 9, 7
-];
-
-// --- 2. ELEMENTOS DE LA PANTALLA (CONEXIÓN CON EL HTML) ---
-const displaySaldoGlobal = document.getElementById("saldo-global"); // La barra superior
+// --- 3. ELEMENTOS DE LA PANTALLA ---
+const displaySaldoGlobal = document.getElementById("saldo-global");
 const displayCreditos = document.getElementById("creditos");
 const displayApuesta = document.getElementById("apuesta");
 const displayPremio = document.getElementById("premio");
@@ -53,47 +35,59 @@ const btnJugar = document.getElementById("btn-jugar");
 const btnCobrar = document.querySelector(".btn-cobrar");
 const botonesApuesta = document.querySelectorAll(".btn-apuesta");
 
-// --- 3. LÓGICA DE APUESTAS ---
+// --- 4. INICIALIZAR FRUTAS (Reemplaza los números) ---
+function inicializarTablero() {
+    for (let i = 0; i < 24; i++) {
+        let casilla = document.getElementById(`casilla-${i}`);
+        let figura = mapaTablero[i];
+        casilla.innerText = iconos[figura];
+        casilla.style.fontSize = "28px"; // Tamaño del emoji
+    }
+}
+inicializarTablero(); // Se ejecuta al abrir la página
+
+// --- 5. LÓGICA DE APUESTAS ---
 botonesApuesta.forEach(boton => {
     boton.addEventListener("click", () => {
         if (enJuego) return;
-        
-        // Primero intentamos usar créditos de la máquina, si no hay, jalamos del saldo global
+
+        // Detectar a qué fruta apostó ignorando el emoji
+        let textoBoton = boton.innerText;
+        let frutaSeleccionada = "";
+        if (textoBoton.includes("Sandía")) frutaSeleccionada = "Sandía";
+        if (textoBoton.includes("Estrella")) frutaSeleccionada = "Estrella";
+        if (textoBoton.includes("Cereza")) frutaSeleccionada = "Cereza";
+
+        // Cobrar del saldo global si la máquina no tiene créditos
         if (creditos >= 1) {
-            let frutaSeleccionada = boton.innerText;
             creditos--;
             apuestaTotal++;
             apuestasActuales[frutaSeleccionada]++;
-            
             displayCreditos.innerText = creditos;
             displayApuesta.innerText = apuestaTotal;
         } else if (saldoGlobal >= 1) {
-            // Carga automática desde la billetera si la máquina está en 0
-            let frutaSeleccionada = boton.innerText;
             saldoGlobal--;
             apuestaTotal++;
             apuestasActuales[frutaSeleccionada]++;
-            
             displaySaldoGlobal.innerText = saldoGlobal;
             displayApuesta.innerText = apuestaTotal;
         } else {
-            alert("No tienes fondos suficientes en tu portafolio.");
+            alert("No tienes fondos suficientes en tu Billetera.");
         }
     });
 });
 
-// --- 4. MOTOR DE GIRO ---
+// --- 6. MOTOR DE GIRO (LA LUZ) ---
 function iniciarGiro() {
     if (enJuego || apuestaTotal === 0) return;
-    
     enJuego = true;
     displayPremio.innerText = "0";
     btnJugar.style.opacity = "0.5";
 
     let posicionActual = 0;
     let vueltas = 0;
-    const metaFinal = Math.floor(Math.random() * secuenciaLuz.length); 
-    let velocidad = 50; 
+    const metaFinal = Math.floor(Math.random() * secuenciaLuz.length);
+    let velocidad = 50;
     let temporizador;
 
     function moverLuz() {
@@ -111,21 +105,21 @@ function iniciarGiro() {
             clearTimeout(temporizador);
             finalizarGiro(idCasillaActiva);
         } else {
-            if (vueltas >= 2) velocidad += 20; 
+            if (vueltas >= 2) velocidad += 20;
             temporizador = setTimeout(moverLuz, velocidad);
         }
     }
     moverLuz();
 }
 
-// --- 5. RESOLUCIÓN DE PREMIOS ---
+// --- 7. PAGAR PREMIOS ---
 function finalizarGiro(idCasillaGanadora) {
     let frutaGanadora = mapaTablero[idCasillaGanadora];
     let monedasApostadas = apuestasActuales[frutaGanadora] || 0;
-    
+
     if (monedasApostadas > 0) {
         let premioTotal = monedasApostadas * multiplicadores[frutaGanadora];
-        creditos += premioTotal; 
+        creditos += premioTotal;
         displayPremio.innerText = premioTotal;
     }
 
@@ -133,7 +127,8 @@ function finalizarGiro(idCasillaGanadora) {
     apuestasActuales = { "Sandía": 0, "Estrella": 0, "Cereza": 0 };
     displayCreditos.innerText = creditos;
     displayApuesta.innerText = apuestaTotal;
-    
+
+    // Efecto de parpadeo al ganar
     let parpadeos = 0;
     let parpadeoTimer = setInterval(() => {
         let elemento = document.getElementById(`casilla-${idCasillaGanadora}`);
@@ -148,12 +143,12 @@ function finalizarGiro(idCasillaGanadora) {
     }, 200);
 }
 
-// --- 6. BOTÓN COBRAR (SACA EL DINERO DE LA MAQUINA AL PORTAFOLIO GLOBAL) ---
+// --- 8. BOTÓN COBRAR ---
 btnCobrar.addEventListener("click", () => {
     if (enJuego) return;
-
+    
+    // Si hay apuesta atorada, devolverla a la máquina
     if (apuestaTotal > 0) {
-        // Devolver apuesta a créditos de la máquina
         creditos += apuestaTotal;
         apuestaTotal = 0;
         apuestasActuales = { "Sandía": 0, "Estrella": 0, "Cereza": 0 };
@@ -161,16 +156,15 @@ btnCobrar.addEventListener("click", () => {
         displayApuesta.innerText = apuestaTotal;
         return;
     }
-
+    
+    // Si hay créditos, mandarlos a Quetza Pulse
     if (creditos > 0) {
         let montoARetirar = creditos;
         creditos = 0;
-        saldoGlobal += montoARetirar; // Aquí ocurre la magia: el dinero sube a la billetera global
-        
+        saldoGlobal += montoARetirar;
         displayCreditos.innerText = creditos;
         displaySaldoGlobal.innerText = saldoGlobal;
-        
-        alert(`💰 ¡Cobro exitoso!\nHas enviado ${montoARetirar} QC a tu Billetera Global.`);
+        alert(`💰 ¡CA-CHING!\nHas enviado ${montoARetirar} QC a tu Billetera Global.`);
     }
 });
 
