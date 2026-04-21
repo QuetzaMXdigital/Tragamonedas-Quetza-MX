@@ -57,3 +57,10 @@ body {
 .btn-accion:active { transform: translateY(4px); box-shadow: 0 2px #333 !important; }
 .btn-cobrar { background-color: #3498db; width: 120px; height: 50px; font-size: 18px; box-shadow: 0 6px #2980b9; }
 .btn-jugar { background-color: #e74c3c; width: 150px; height: 50px; font-size: 22px; box-shadow: 0 6px #c0392b; }
+/* Asegura que las imágenes de las frutas quepan perfecto en sus casillas y botones */
+.casilla img, .modulo-icono img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain; /* Evita que la imagen se estire feo */
+    pointer-events: none; /* Evita "arrastrar" la imagen por error */
+}
