@@ -65,12 +65,19 @@
             <button class="btn-accion btn-cobrar" id="btn-cobrar">COBRAR</button>
             <button class="btn-accion btn-jugar" id="btn-jugar">JUGAR</button>
         </div>
-    </div>
-<audio id="audio-moneda" src="moneda.mp3"></audio>
+        <div id="modal-victoria" class="modal-oculto">
+            <div class="modal-contenido">
+                <img src="notificacion.jpg" alt="¡Ganaste!" class="img-victoria">
+                <h2 id="texto-victoria">¡GANASTE 0 QC!</h2>
+                <button id="btn-cerrar-modal" class="btn-accion btn-jugar" style="margin-top: 15px; width: 100%;">¡INCREÍBLE!</button>
+            </div>
+        </div>
+
+    </div> <audio id="audio-moneda" src="moneda.mp3"></audio>
     <audio id="audio-giro" src="giro.mp3"></audio>
     <audio id="audio-premio" src="premio.mp3"></audio>
     <audio id="audio-cobrar" src="cobrar.mp3"></audio>
 
-    <script src="script.js?v=7"></script>
+    <script src="script.js?v=10"></script>
 </body>
 </html>
