@@ -127,4 +127,89 @@ document.getElementById("btn-jugar").addEventListener("click", () => {
 
     // Sistema RTP (La ventaja de la casa)
     let rng = Math.random() * 100;
-    let acumulado = 0
+    let acumulado = 0;
+    let frutaElegida = "exit";
+    for (let clave in catalogo) {
+        acumulado += catalogo[clave].peso;
+        if (rng <= acumulado) { frutaElegida = clave; break; }
+    }
+    let opciones = [];
+    for (let i = 0; i < mapaTablero.length; i++) {
+        if (mapaTablero[i] === frutaElegida) opciones.push(i);
+    }
+    
+    let metaAbsoluta = opciones[Math.floor(Math.random() * opciones.length)];
+    let metaFinal = secuenciaLuz.indexOf(metaAbsoluta);
+    
+    let pos = 0, vueltas = 0, velocidad = 50;
+
+    function mover() {
+        document.querySelectorAll('.casilla').forEach(c => c.classList.remove('activa'));
+        let idActual = secuenciaLuz[pos];
+        let el = document.getElementById(`casilla-${idActual}`);
+        if(el) el.classList.add('activa');
+        
+        pos++;
+        if(pos >= secuenciaLuz.length) {
+            pos = 0;
+            vueltas++;
+        }
+
+        if(vueltas >= 2 && pos === (metaFinal + 1) % secuenciaLuz.length) {
+            detener(sonidoGiro);
+            finalizar(secuenciaLuz[(pos - 1 + secuenciaLuz.length) % secuenciaLuz.length]);
+        } else {
+            setTimeout(mover, vueltas >= 2 ? velocidad + 20 : velocidad);
+        }
+    }
+    mover();
+});
+
+// ==========================================
+// 6. RESULTADO, PARPADEO Y MODAL
+// ==========================================
+function finalizar(idGanador) {
+    let fruta = mapaTablero[idGanador];
+    let gano = false;
+    
+    if (fruta !== "exit" && apuestas[fruta] > 0) {
+        ultimoPremio = apuestas[fruta] * catalogo[fruta].multi;
+        pozoDeLaCasa -= ultimoPremio;
+        saldoGlobal += ultimoPremio;
+        gano = true;
+        reproducir(sonidoPremio);
+    }
+    actualizarPantallas();
+    
+    // Efecto visual de parpadeo de la casilla ganadora
+    let parpadeos = 0;
+    let el = document.getElementById(`casilla-${idGanador}`);
+    let pTimer = setInterval(() => {
+        if(el) el.classList.toggle('activa');
+        parpadeos++;
+        if (parpadeos > 6) {
+            clearInterval(pTimer);
+            if(el) el.classList.add('activa');
+            enJuego = false;
+            
+            // 🔥 AQUÍ SALTA TU IMAGEN DE VICTORIA 🔥
+            if (gano) {
+                setTimeout(() => {
+                    textoVictoria.innerText = `¡GANASTE ${ultimoPremio} QC!`;
+                    modalVictoria.classList.add("mostrar");
+                }, 100);
+            }
+        }
+    }, 150);
+}
+
+// ==========================================
+// 7. BOTÓN COBRAR (LIMPIAR MESA)
+// ==========================================
+document.getElementById("btn-cobrar").addEventListener("click", () => {
+    if (enJuego) return;
+    reproducir(sonidoCobrar);
+    Object.keys(apuestas).forEach(f => apuestas[f] = 0);
+    ultimoPremio = 0;
+    actualizarPantallas();
+});
