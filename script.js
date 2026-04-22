@@ -1,8 +1,8 @@
 // ==========================================
 // 1. ECONOMÍA GLOBAL Y CONFIGURACIÓN
 // ==========================================
-let saldoGlobal = 5000;
-let pozoDeLaCasa = 100000;
+let saldoGlobal = 100;
+let pozoDeLaCasa = 1000;
 let ultimoPremio = 0;
 let enJuego = false;
 
