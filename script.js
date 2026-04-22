@@ -29,7 +29,7 @@ const mapaTablero = [
 const secuenciaLuz = [0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 23, 22, 21, 20, 19, 18, 17, 15, 13, 11, 9, 7];
 
 // ==========================================
-// 2. CONEXIÓN CON LA PANTALLA (HTML)
+// 2. ELEMENTOS UI Y AUDIO
 // ==========================================
 const domSaldo = document.getElementById("saldo-global");
 const domPremio = document.getElementById("premio");
@@ -38,24 +38,30 @@ const panelApuestas = document.querySelector(".panel-apuestas");
 const btnJugar = document.getElementById("btn-jugar");
 const btnCobrar = document.getElementById("btn-cobrar");
 
-// ==========================================
-// 2.5 CONTROLADOR DE AUDIO (¡NUEVO!)
-// ==========================================
 const sonidoMoneda = document.getElementById("audio-moneda");
 const sonidoGiro = document.getElementById("audio-giro");
 const sonidoPremio = document.getElementById("audio-premio");
 const sonidoCobrar = document.getElementById("audio-cobrar");
 
-// Función para reproducir sin que se corte si das clics muy rápido
+// Configuramos el sonido de giro para que sea un "loop" infinito mientras gira
+if(sonidoGiro) sonidoGiro.loop = true; 
+
 function reproducirSonido(audioElement) {
     if(audioElement) {
-        audioElement.currentTime = 0; // Regresa el sonido al inicio instantáneamente
-        audioElement.play().catch(e => console.log("Navegador bloqueó el auto-play de audio."));
+        audioElement.currentTime = 0; 
+        audioElement.play().catch(e => console.log("Auto-play bloqueado."));
+    }
+}
+
+function detenerSonido(audioElement) {
+    if(audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
     }
 }
 
 // ==========================================
-// 3. INICIALIZACIÓN DEL JUEGO
+// 3. INICIALIZACIÓN
 // ==========================================
 function inicializarTablero() {
     for (let i = 0; i < 24; i++) {
@@ -90,7 +96,7 @@ inicializarControles();
 actualizarPantallas();
 
 // ==========================================
-// 4. CONFIGURAR MESA DE APUESTAS
+// 4. APUESTAS
 // ==========================================
 window.ajustarApuesta = function(fruta, cantidad) {
     if (enJuego) return;
@@ -101,7 +107,7 @@ window.ajustarApuesta = function(fruta, cantidad) {
         let costoSimulado = Object.values(apuestas).reduce((a, b) => a + b, 0) - apuestas[fruta] + nuevaApuesta;
         if (costoSimulado <= saldoGlobal) {
             apuestas[fruta] = nuevaApuesta;
-            reproducirSonido(sonidoMoneda); // <-- ¡SUENA LA MONEDA AL APOSTAR!
+            reproducirSonido(sonidoMoneda); 
         } else {
             alert("No tienes suficiente saldo.");
         }
@@ -140,7 +146,7 @@ function elegirCasillaConVentaja() {
 }
 
 // ==========================================
-// 6. EL GIRO Y LOS SONIDOS
+// 6. EL GIRO Y LOS SONIDOS CORREGIDOS
 // ==========================================
 btnJugar.addEventListener("click", () => {
     let totalMesa = Object.values(apuestas).reduce((a, b) => a + b, 0);
@@ -159,6 +165,9 @@ btnJugar.addEventListener("click", () => {
     enJuego = true;
     btnJugar.style.opacity = "0.5";
 
+    // ¡NUEVO! Encendemos el sonido del giro UNA SOLA VEZ aquí
+    reproducirSonido(sonidoGiro);
+
     let posicionActual = 0;
     let vueltas = 0;
     let indexFinal = elegirCasillaConVentaja();
@@ -171,9 +180,6 @@ btnJugar.addEventListener("click", () => {
         let idActiva = secuenciaLuz[posicionActual];
         let el = document.getElementById(`casilla-${idActiva}`);
         if(el) el.classList.add('activa');
-
-        // <-- ¡SUENA EL TIC DEL GIRO EN CADA CASILLA!
-        reproducirSonido(sonidoGiro); 
 
         posicionActual++;
         if (posicionActual >= secuenciaLuz.length) {
@@ -193,6 +199,9 @@ btnJugar.addEventListener("click", () => {
 });
 
 function finalizarGiro(idGanador) {
+    // ¡NUEVO! Apagamos de golpe el sonido del giro antes de hacer cualquier otra cosa
+    detenerSonido(sonidoGiro);
+
     let frutaGanadora = mapaTablero[idGanador];
     let gano = false;
     
@@ -203,7 +212,8 @@ function finalizarGiro(idGanador) {
         saldoGlobal += ganancia;
         gano = true;
         
-        reproducirSonido(sonidoPremio); // <-- ¡SUENA EL PREMIO MAYOR!
+        // El premio suena totalment limpio porque el giro ya se calló
+        reproducirSonido(sonidoPremio); 
         actualizarPantallas();
     }
 
@@ -233,7 +243,7 @@ function finalizarGiro(idGanador) {
 btnCobrar.addEventListener("click", () => {
     if (enJuego) return;
     
-    reproducirSonido(sonidoCobrar); // <-- ¡SUENA LA CAJA REGISTRADORA!
+    reproducirSonido(sonidoCobrar); 
     Object.keys(apuestas).forEach(f => apuestas[f] = 0);
     ultimoPremio = 0;
     actualizarPantallas();
