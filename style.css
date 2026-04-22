@@ -28,6 +28,7 @@ body {
     left: 0;
     border-bottom: 2px solid #f5f505;
     z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
 /* CONTENEDOR PRINCIPAL */
@@ -36,29 +37,37 @@ body {
     padding: 20px;
     border-radius: 15px;
     border: 4px solid #e94560;
-    box-shadow: 0 0 20px rgba(233, 69, 96, 0.7);
+    box-shadow: 0 0 20px rgba(233, 69, 96, 0.7), inset 0 0 15px rgba(0,0,0,0.5);
     max-width: 650px;
     width: 95%;
 }
 
-/* MARCADORES */
+/* MARCADORES (Estilo Pantalla LED) */
 .marcadores {
     display: flex;
     justify-content: space-between;
     margin-bottom: 15px;
+    gap: 10px;
 }
 
 .display {
-    background-color: #fff;
-    color: #ba0404;
+    background-color: #000;
+    color: #ff3333;
     padding: 10px;
     border-radius: 5px;
-    border: 2px solid #555;
+    border: 2px solid #ffd700;
     font-weight: bold;
     font-size: 14px;
     text-align: center;
     flex: 1;
-    margin: 0 5px;
+    box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.2);
+    text-shadow: 0 0 5px #ff3333;
+}
+
+/* Tablero de Premio en verde para destacar la ganancia */
+#premio {
+    color: #00ff88;
+    text-shadow: 0 0 5px #00ff88;
 }
 
 /* TABLERO */
@@ -73,50 +82,52 @@ body {
     border: 3px solid #e09302;
     aspect-ratio: 1 / 1;
     width: 100%;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
 }
 
 .casilla {
     background-color: #fff;
-    color: #000;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 5px;
     border: 2px solid #ccc;
-    overflow: hidden; /* 🔥 IMPORTANTE */
+    overflow: hidden; 
+    position: relative;
+    transition: transform 0.1s;
 }
 
 .casilla.activa {
     background-color: #ffff00;
-    box-shadow: 0 0 15px #ffff00;
+    box-shadow: 0 0 20px #ffff00, inset 0 0 10px #ffaa00;
     transform: scale(1.05);
+    border-color: #ffaa00;
+    z-index: 5;
 }
 
 /* IMÁGENES EN TABLERO */
 .casilla img {
-    max-width: 75%;
-    max-height: 75%;
+    max-width: 80%;
+    max-height: 80%;
     object-fit: contain;
     pointer-events: none;
 }
 
-/* PANEL CENTRAL */
+/* PANEL CENTRAL Y LOGO */
 .panel-central {
     grid-column: 2 / 7;
     grid-row: 2 / 7;
-    background-color: #cc0404;
-    border: 3px solid #444;
+    background-color: #000;
+    border: 3px solid #ffd700;
     border-radius: 10px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     overflow: hidden;
     z-index: 10;
+    box-shadow: inset 0 0 30px rgba(255, 215, 0, 0.2);
 }
 
-/* LOGO CENTRAL */
 .logo-centro-img {
     max-width: 100%;
     max-height: 100%;
@@ -133,20 +144,21 @@ body {
     padding: 10px;
     background-color: #e07516;
     border-radius: 10px;
-    border: 2px solid #333;
+    border: 2px solid #b85e0e;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
 }
 
 .modulo-apuesta {
     background-color: #010024;
-    border: 1px solid #e07516;
+    border: 2px solid #ffd700;
     border-radius: 8px;
     padding: 5px;
     text-align: center;
     width: 75px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
 .modulo-icono {
@@ -155,9 +167,9 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-bottom: 2px;
 }
 
-/* IMÁGENES EN BOTONES */
 .modulo-icono img {
     max-width: 35px;
     max-height: 35px;
@@ -165,7 +177,53 @@ body {
     pointer-events: none;
 }
 
-/* CONTROLES */
+.modulo-multiplicador { 
+    font-size: 11px; 
+    color: #ffd700; 
+    margin-bottom: 5px; 
+    font-weight: bold;
+}
+
+.controles-modulo { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: #000; 
+    border-radius: 5px; 
+    padding: 2px; 
+    width: 100%;
+    border: 1px solid #444;
+}
+
+.btn-ajuste { 
+    background: #444; 
+    color: white; 
+    border: none; 
+    width: 20px; 
+    height: 20px; 
+    border-radius: 3px; 
+    cursor: pointer; 
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.1s;
+}
+
+.btn-ajuste:active { 
+    background: #ffd700; 
+    color: #000; 
+}
+
+.monto-apuesta { 
+    color: #00ff88; 
+    font-size: 12px; 
+    font-weight: bold; 
+    width: 25px; 
+    text-align: center;
+}
+
+/* BOTONES MAESTROS */
 .controles-principales {
     display: flex;
     justify-content: center;
@@ -175,20 +233,35 @@ body {
 
 .btn-accion {
     border: none;
-    border-radius: 15px;
+    border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
     color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    transition: transform 0.1s, box-shadow 0.1s;
 }
 
 .btn-cobrar {
     background-color: #3498db;
-    width: 120px;
+    width: 130px;
     height: 50px;
+    box-shadow: 0 6px #2980b9;
 }
 
 .btn-jugar {
     background-color: #e74c3c;
-    width: 150px;
+    width: 160px;
     height: 50px;
+    font-size: 22px;
+    box-shadow: 0 6px #c0392b;
+}
+
+/* Efecto de hundimiento al presionar los botones grandes */
+.btn-accion:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px rgba(0,0,0,0.5);
 }
