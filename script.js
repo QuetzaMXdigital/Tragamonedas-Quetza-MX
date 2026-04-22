@@ -78,13 +78,14 @@ function inicializarControles() {
     Object.keys(apuestas).forEach(fruta => {
         let modulo = document.createElement("div");
         modulo.className = "modulo-apuesta";
+        
+        // ELIMINAMOS EL BOTÓN DE RESTAR (-) Y DEJAMOS SOLO EL DE SUMAR (+)
         modulo.innerHTML = `
             <div class="modulo-icono">${catalogo[fruta].icono}</div>
             <span class="modulo-multiplicador">${catalogo[fruta].multi}x</span>
-            <div class="controles-modulo">
-                <button class="btn-ajuste" onclick="ajustarApuesta('${fruta}', -1)">-</button>
-                <span class="monto-apuesta" id="monto-${fruta}">0</span>
-                <button class="btn-ajuste" onclick="ajustarApuesta('${fruta}', 1)">+</button>
+            <div class="controles-modulo" style="justify-content: center; gap: 10px;">
+                <span class="monto-apuesta" id="monto-${fruta}" style="font-size: 14px;">0</span>
+                <button class="btn-ajuste" onclick="ajustarApuesta('${fruta}', 1)" style="width: 25px; background-color: #27ae60; border-radius: 4px;">+</button>
             </div>
         `;
         panelApuestas.appendChild(modulo);
