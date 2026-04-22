@@ -37,7 +37,19 @@ const domApuestaTotal = document.getElementById("apuesta-total");
 const panelApuestas = document.querySelector(".panel-apuestas");
 const btnJugar = document.getElementById("btn-jugar");
 const btnCobrar = document.getElementById("btn-cobrar");
+const sonidoCobrar = document.getElementById("audio-cobrar");
 
+// --- NUEVOS ELEMENTOS DEL MODAL ---
+const modalVictoria = document.getElementById("modal-victoria");
+const textoVictoria = document.getElementById("texto-victoria");
+const btnCerrarModal = document.getElementById("btn-cerrar-modal");
+
+// Cerrar el modal al darle clic al botón
+if(btnCerrarModal) {
+    btnCerrarModal.addEventListener("click", () => {
+        modalVictoria.classList.remove("mostrar");
+    });
+}
 const sonidoMoneda = document.getElementById("audio-moneda");
 const sonidoGiro = document.getElementById("audio-giro");
 const sonidoPremio = document.getElementById("audio-premio");
@@ -227,11 +239,15 @@ function finalizarGiro(idGanador) {
             clearInterval(pTimer);
             if(el) el.classList.add('activa');
             enJuego = false;
-            btnJugar.style.opacity = "1";
+            document.getElementById("btn-jugar").style.opacity = "1";
             
+            // 🔥 AQUÍ ESTÁ LA MAGIA DEL NUEVO MODAL 🔥
             if (gano) {
                 setTimeout(() => {
-                    alert(`🎉 ¡BINGO!\nGanaste ${ultimoPremio} QC.`);
+                    // Inyectamos el texto con el número exacto
+                    textoVictoria.innerText = `¡GANASTE ${ultimoPremio} QC!`;
+                    // Hacemos que aparezca la ventana
+                    modalVictoria.classList.add("mostrar");
                 }, 100);
             }
         }
