@@ -73,8 +73,10 @@ body {
     border: 3px solid #ffd700;
     aspect-ratio: 1 / 1;
     width: 100%;
+    position: relative;
 }
 
+/* CASILLAS */
 .casilla {
     background-color: #fff;
     color: #000;
@@ -83,16 +85,18 @@ body {
     align-items: center;
     border-radius: 5px;
     border: 2px solid #ccc;
-    overflow: hidden; /* 🔥 IMPORTANTE */
+    overflow: hidden;
+    transition: all 0.2s ease;
 }
 
 .casilla.activa {
     background-color: #ffff00;
     box-shadow: 0 0 15px #ffff00;
     transform: scale(1.05);
+    z-index: 2;
 }
 
-/* IMÁGENES EN TABLERO */
+/* IMÁGENES EN CASILLAS */
 .casilla img {
     max-width: 75%;
     max-height: 75%;
@@ -113,15 +117,49 @@ body {
     align-items: center;
 
     overflow: hidden;
-    z-index: 10;
+    z-index: 1;
 }
 
-/* LOGO CENTRAL */
+/* LOGO */
 .logo-centro-img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
 }
+
+/* POSICIONAMIENTO PERÍMETRO */
+
+/* SUPERIOR */
+.casilla:nth-of-type(2) { grid-column: 1; grid-row: 1; }
+.casilla:nth-of-type(3) { grid-column: 2; grid-row: 1; }
+.casilla:nth-of-type(4) { grid-column: 3; grid-row: 1; }
+.casilla:nth-of-type(5) { grid-column: 4; grid-row: 1; }
+.casilla:nth-of-type(6) { grid-column: 5; grid-row: 1; }
+.casilla:nth-of-type(7) { grid-column: 6; grid-row: 1; }
+.casilla:nth-of-type(8) { grid-column: 7; grid-row: 1; }
+
+/* DERECHA */
+.casilla:nth-of-type(9)  { grid-column: 7; grid-row: 2; }
+.casilla:nth-of-type(10) { grid-column: 7; grid-row: 3; }
+.casilla:nth-of-type(11) { grid-column: 7; grid-row: 4; }
+.casilla:nth-of-type(12) { grid-column: 7; grid-row: 5; }
+.casilla:nth-of-type(13) { grid-column: 7; grid-row: 6; }
+
+/* ABAJO */
+.casilla:nth-of-type(14) { grid-column: 7; grid-row: 7; }
+.casilla:nth-of-type(15) { grid-column: 6; grid-row: 7; }
+.casilla:nth-of-type(16) { grid-column: 5; grid-row: 7; }
+.casilla:nth-of-type(17) { grid-column: 4; grid-row: 7; }
+.casilla:nth-of-type(18) { grid-column: 3; grid-row: 7; }
+.casilla:nth-of-type(19) { grid-column: 2; grid-row: 7; }
+.casilla:nth-of-type(20) { grid-column: 1; grid-row: 7; }
+
+/* IZQUIERDA */
+.casilla:nth-of-type(21) { grid-column: 1; grid-row: 6; }
+.casilla:nth-of-type(22) { grid-column: 1; grid-row: 5; }
+.casilla:nth-of-type(23) { grid-column: 1; grid-row: 4; }
+.casilla:nth-of-type(24) { grid-column: 1; grid-row: 3; }
+.casilla:nth-of-type(25) { grid-column: 1; grid-row: 2; }
 
 /* PANEL APUESTAS */
 .panel-apuestas {
@@ -134,35 +172,6 @@ body {
     background-color: #111;
     border-radius: 10px;
     border: 2px solid #333;
-}
-
-.modulo-apuesta {
-    background-color: #222;
-    border: 1px solid #555;
-    border-radius: 8px;
-    padding: 5px;
-    text-align: center;
-    width: 75px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.modulo-icono {
-    height: 40px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* IMÁGENES EN BOTONES */
-.modulo-icono img {
-    max-width: 35px;
-    max-height: 35px;
-    object-fit: contain;
-    pointer-events: none;
 }
 
 /* CONTROLES */
