@@ -104,7 +104,7 @@ body {
 .panel-central {
     grid-column: 2 / 7;
     grid-row: 2 / 7;
-    background-color: #000;
+    background-color: #cc0404;
     border: 3px solid #444;
     border-radius: 10px;
 
