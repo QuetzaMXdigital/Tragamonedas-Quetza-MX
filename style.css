@@ -131,3 +131,9 @@ body {
     object-fit: contain; /* Evita que la imagen se estire feo */
     pointer-events: none; /* Evita "arrastrar" la imagen por error */
 }
+/* Asegura que el nuevo logo central quepa perfecto y se vea nítido */
+.logo-centro-img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain; /* Evita que la imagen se estire feo */
+}
