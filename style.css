@@ -131,7 +131,7 @@ body {
     gap: 8px;
     margin-top: 15px;
     padding: 10px;
-    background-color: #01018a;
+    background-color: #e07516;
     border-radius: 10px;
     border: 2px solid #333;
 }
@@ -175,7 +175,7 @@ body {
 
 .btn-accion {
     border: none;
-    border-radius: 10px;
+    border-radius: 15px;
     font-weight: bold;
     cursor: pointer;
     color: #fff;
