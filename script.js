@@ -1,7 +1,8 @@
 // ==========================================
 // 1. CONFIGURACIÓN Y ECONOMÍA GLOBAL
 // ==========================================
-let saldoGlobal = 5000;
+// 🔴 ELIMINAMOS saldoGlobal = 5000; 
+// Ahora el juego usa 'saldoDisponible' que viene directamente del banco.
 let pozoDeLaCasa = 100000;
 let ultimoPremio = 0;
 let enJuego = false;
@@ -42,7 +43,6 @@ const modalVictoria = document.getElementById("modal-victoria");
 const textoVictoria = document.getElementById("texto-victoria");
 const btnCerrarModal = document.getElementById("btn-cerrar-modal");
 
-// Cerrar la ventana de premio
 if(btnCerrarModal) {
     btnCerrarModal.addEventListener("click", () => {
         modalVictoria.classList.remove("mostrar");
@@ -57,7 +57,7 @@ function detener(audio) {
 }
 
 // ==========================================
-// 3. INICIALIZAR EL TABLERO Y LOS BOTONES (SOLO SUMAR +)
+// 3. INICIALIZAR EL TABLERO Y LOS BOTONES
 // ==========================================
 const panelAp = document.querySelector(".panel-apuestas");
 panelAp.innerHTML = "";
@@ -84,7 +84,8 @@ for(let i=0; i<24; i++) {
 // 4. LÓGICA DE APUESTAS Y PANTALLAS
 // ==========================================
 function actualizarPantallas() {
-    document.getElementById("saldo-global").innerText = saldoGlobal;
+    // 🟢 Usamos saldoDisponible en lugar de saldoGlobal
+    document.getElementById("saldo-global").innerText = typeof saldoDisponible !== 'undefined' ? saldoDisponible : 0;
     document.getElementById("premio").innerText = ultimoPremio;
     let total = 0;
     Object.keys(apuestas).forEach(f => {
@@ -100,9 +101,13 @@ window.ajustarApuesta = function(fruta, cantidad) {
     let nueva = apuestas[fruta] + cantidad;
     if (nueva >= 0) {
         let costoTotal = Object.values(apuestas).reduce((a,b)=>a+b, 0) - apuestas[fruta] + nueva;
-        if (costoTotal <= saldoGlobal) {
+        
+        // 🟢 Validamos contra el saldo real del banco
+        if (costoTotal <= saldoDisponible) {
             apuestas[fruta] = nueva;
             reproducir(sonidoMoneda);
+        } else {
+            alert("Saldo insuficiente en tu Billetera Quetza.");
         }
     }
     actualizarPantallas();
@@ -111,14 +116,30 @@ window.ajustarApuesta = function(fruta, cantidad) {
 actualizarPantallas();
 
 // ==========================================
-// 5. MOTOR DEL JUEGO (JUGAR, VENTAJA Y GIRAR)
+// 5. MOTOR DEL JUEGO (COBRO AL BANCO Y GIRAR)
 // ==========================================
-document.getElementById("btn-jugar").addEventListener("click", () => {
+// 🟢 Agregamos 'async' para poder conectarnos a Supabase
+document.getElementById("btn-jugar").addEventListener("click", async () => {
     let totalMesa = Object.values(apuestas).reduce((a, b) => a + b, 0);
-    if (enJuego || totalMesa === 0 || saldoGlobal < totalMesa) return;
+    
+    if (enJuego || totalMesa === 0) return;
+    
+    // Verificación final de saldo
+    if (saldoDisponible < totalMesa) {
+        alert("No tienes suficientes Quetza Coins en tu billetera.");
+        return;
+    }
 
-    // Transacción a la casa
-    saldoGlobal -= totalMesa;
+    // 🟢 1. COBRO OFICIAL EN LA BASE DE DATOS ANTES DE GIRAR
+    const transaccion = await modificarSaldoUsuario(usuarioLogueado.id, totalMesa, 'apuesta_tragamonedas', false);
+    
+    if (!transaccion.exito) {
+        alert("Error procesando tu apuesta en el banco: " + transaccion.mensaje);
+        return; // Detenemos el giro si el banco falló
+    }
+
+    // 2. ACTUALIZACIÓN VISUAL (El banco ya cobró el dinero)
+    saldoDisponible -= totalMesa;
     pozoDeLaCasa += totalMesa;
     ultimoPremio = 0;
     enJuego = true;
@@ -166,19 +187,31 @@ document.getElementById("btn-jugar").addEventListener("click", () => {
 });
 
 // ==========================================
-// 6. RESULTADO, PARPADEO Y MODAL
+// 6. RESULTADO Y PAGO DE PREMIOS (BÓVEDA)
 // ==========================================
-function finalizar(idGanador) {
+// 🟢 Transformamos a 'async' para depositar las ganancias
+async function finalizar(idGanador) {
     let fruta = mapaTablero[idGanador];
     let gano = false;
+    let premioCalculado = 0;
     
     if (fruta !== "exit" && apuestas[fruta] > 0) {
-        ultimoPremio = apuestas[fruta] * catalogo[fruta].multi;
-        pozoDeLaCasa -= ultimoPremio;
-        saldoGlobal += ultimoPremio;
-        gano = true;
-        reproducir(sonidoPremio);
+        premioCalculado = apuestas[fruta] * catalogo[fruta].multi;
+        
+        // 🟢 DEPÓSITO OFICIAL DESDE LA BÓVEDA A LA BILLETERA
+        const pago = await modificarSaldoUsuario(usuarioLogueado.id, premioCalculado, 'premio_tragamonedas', true);
+        
+        if (pago.exito) {
+            ultimoPremio = premioCalculado;
+            pozoDeLaCasa -= ultimoPremio;
+            saldoDisponible += ultimoPremio; // Sumamos al saldo real
+            gano = true;
+            reproducir(sonidoPremio);
+        } else {
+            alert("Hubo un problema depositando tu premio: " + pago.mensaje);
+        }
     }
+    
     actualizarPantallas();
     
     // Efecto visual de parpadeo de la casilla ganadora
@@ -192,7 +225,6 @@ function finalizar(idGanador) {
             if(el) el.classList.add('activa');
             enJuego = false;
             
-            // 🔥 AQUÍ SALTA TU IMAGEN DE VICTORIA 🔥
             if (gano) {
                 setTimeout(() => {
                     textoVictoria.innerText = `¡GANASTE ${ultimoPremio} QC!`;
