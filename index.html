@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fruit Cocktail - Quetza MX</title>
     <link rel="stylesheet" href="style.css?v=11">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="quetza-banco.js"></script>
 </head>
 <body>
     <nav class="global-header">
         <div class="logo">QUETZA <span class="tag">Pulse</span></div>
         <div class="wallet-info">
             <span class="label">Billetera Global:</span>
-            <span id="saldo-global" class="balance">5000</span> <span class="currency">QC</span>
+            <span id="saldo-global" class="balance">0</span> <span class="currency">QC</span>
         </div>
     </nav>
 
@@ -26,7 +28,6 @@
         <img src="logo_centro.png" class="logo-centro-img">
     </div>
 
-    <!-- FILA SUPERIOR (0–6) -->
     <div class="casilla" id="casilla-0"></div>
     <div class="casilla" id="casilla-1"></div>
     <div class="casilla" id="casilla-2"></div>
@@ -35,14 +36,12 @@
     <div class="casilla" id="casilla-5"></div>
     <div class="casilla" id="casilla-6"></div>
 
-    <!-- LADO DERECHO (7–11) -->
     <div class="casilla" id="casilla-7"></div>
     <div class="casilla" id="casilla-8"></div>
     <div class="casilla" id="casilla-9"></div>
     <div class="casilla" id="casilla-10"></div>
     <div class="casilla" id="casilla-11"></div>
 
-    <!-- FILA INFERIOR (12–18) -->
     <div class="casilla" id="casilla-12"></div>
     <div class="casilla" id="casilla-13"></div>
     <div class="casilla" id="casilla-14"></div>
@@ -51,7 +50,6 @@
     <div class="casilla" id="casilla-17"></div>
     <div class="casilla" id="casilla-18"></div>
 
-    <!-- LADO IZQUIERDO (19–23) -->
     <div class="casilla" id="casilla-19"></div>
     <div class="casilla" id="casilla-20"></div>
     <div class="casilla" id="casilla-21"></div>
@@ -73,10 +71,29 @@
             </div>
         </div>
 
-    </div> <audio id="audio-moneda" src="moneda.mp3"></audio>
+    </div> 
+    
+    <audio id="audio-moneda" src="moneda.mp3"></audio>
     <audio id="audio-giro" src="giro.mp3"></audio>
     <audio id="audio-premio" src="premio.mp3"></audio>
     <audio id="audio-cobrar" src="cobrar.mp3"></audio>
+
+    <script>
+        // Declaramos estas variables globales para que tu script.js pueda verlas
+        let usuarioLogueado = null;
+        let saldoDisponible = 0;
+
+        window.onload = () => {
+            // inicializarBancoEnPagina viene de quetza-banco.js
+            inicializarBancoEnPagina((user, saldo) => {
+                usuarioLogueado = user;
+                saldoDisponible = saldo;
+                
+                // Actualizar el marcador visual en el HTML
+                document.getElementById('saldo-global').innerText = saldoDisponible;
+            });
+        };
+    </script>
 
     <script src="script.js?v=10"></script>
 </body>
