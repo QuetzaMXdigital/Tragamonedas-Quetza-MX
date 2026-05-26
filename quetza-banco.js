@@ -1,7 +1,7 @@
 // quetza-banco.js - Conector Universal para tus páginas HTML
 
 const SUPABASE_URL = 'https://bhgnilcpdksfniishdzo.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJoZ25pbGNwZGtzZm5paXNoZHpvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODYxMTczMywiZXhwIjoyMDk0MTg3NzMzfQ.E1pOAw9J-9tJwmFyusk-mFgNV0eK7uxBmwfarE_Gw9s';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsI';
 
 const cliente = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
