@@ -90,14 +90,18 @@ async function modificarSaldoUsuario(userId, amount, tipoTransaccion, esIngreso)
     }
 }
 
-// Lógica del botón Iniciar Sesión (para que funcione el botón que agregamos al HTML)
+// Lógica del botón Iniciar Sesión 
 document.addEventListener("DOMContentLoaded", () => {
     let btnLogin = document.getElementById("btn-iniciar-sesion");
     if(btnLogin) {
         btnLogin.addEventListener("click", async () => {
-            // Usamos Google pero puedes cambiarlo a correo/contraseña
+            // Usamos Google y le FORZAMOS la ruta de regreso exacta
             const { error } = await cliente.auth.signInWithOAuth({
                 provider: 'google',
+                options: {
+                    // Esto lee automáticamente si estás en tu compu o en GitHub y te regresa ahí mismo
+                    redirectTo: window.location.origin + window.location.pathname
+                }
             });
             if(error) alert("Error al conectar: " + error.message);
         });
