@@ -76,15 +76,16 @@
     <script src="script.js?v=12"></script>
 
     <script>
-        window.onload = () => {
+       window.onload = () => {
             // Llamamos al banco
             inicializarBancoEnPagina((user, saldo) => {
                 
-                // MAGIA: Sobrescribimos el saldoGlobal falso de script.js con el saldo real de la nube
+                // Sobrescribimos el saldo
                 saldoGlobal = saldo; 
-                
-                // Actualizamos las pantallas visuales para que muestren el dinero real
                 document.getElementById('saldo-global').innerText = saldoGlobal;
+                
+                // 🔥 LA MAGIA: Aparecemos la maquinita porque el banco ya nos dio luz verde 🔥
+                document.getElementById('maquinita-principal').style.display = "block";
                 
                 console.log("¡Jugador autorizado! Billetera cargada con éxito.");
             });
