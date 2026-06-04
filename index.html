@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fruit Cocktail - Quetza MX</title>
     <link rel="stylesheet" href="style.css?v=11">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="quetza-banco.js"></script>
+    <script src="quetza-banco.js?v=2"></script>
 </head>
 <body>
     <nav class="global-header">
@@ -17,52 +18,47 @@
         </div>
     </nav>
 
-    <div class="maquinita-container">
+    <div id="modal-login" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(26, 26, 46, 0.95); z-index: 3000; justify-content: center; align-items: center;">
+        <div style="background: linear-gradient(180deg, #0f3460 0%, #01018a 100%); padding: 40px; border-radius: 15px; border: 3px solid #ffd700; text-align: center; max-width: 400px; width: 90%;">
+            <h2 style="color: white; font-size: 24px; margin-bottom: 10px;">Bienvenido a Quetza</h2>
+            <p style="color: #ccc; margin-bottom: 25px;">Conecta tu cuenta para jugar con saldo real.</p>
+            <button id="btn-iniciar-sesion" class="btn-accion btn-cobrar" style="width: 100%;">INICIAR SESIÓN</button>
+        </div>
+    </div>
+
+    <div class="maquinita-container" id="maquinita-principal">
         <div class="marcadores">
             <div class="display">PREMIO DE SESIÓN: <span id="premio">0</span></div>
             <div class="display">APUESTA MESA: <span id="apuesta-total">0</span></div>
         </div>
 
-       <div class="tablero">
-    <div class="panel-central">
-        <img src="logo_centro.png" class="logo-centro-img">
-    </div>
-
-    <div class="casilla" id="casilla-0"></div>
-    <div class="casilla" id="casilla-1"></div>
-    <div class="casilla" id="casilla-2"></div>
-    <div class="casilla" id="casilla-3"></div>
-    <div class="casilla" id="casilla-4"></div>
-    <div class="casilla" id="casilla-5"></div>
-    <div class="casilla" id="casilla-6"></div>
-
-    <div class="casilla" id="casilla-7"></div>
-    <div class="casilla" id="casilla-8"></div>
-    <div class="casilla" id="casilla-9"></div>
-    <div class="casilla" id="casilla-10"></div>
-    <div class="casilla" id="casilla-11"></div>
-
-    <div class="casilla" id="casilla-12"></div>
-    <div class="casilla" id="casilla-13"></div>
-    <div class="casilla" id="casilla-14"></div>
-    <div class="casilla" id="casilla-15"></div>
-    <div class="casilla" id="casilla-16"></div>
-    <div class="casilla" id="casilla-17"></div>
-    <div class="casilla" id="casilla-18"></div>
-
-    <div class="casilla" id="casilla-19"></div>
-    <div class="casilla" id="casilla-20"></div>
-    <div class="casilla" id="casilla-21"></div>
-    <div class="casilla" id="casilla-22"></div>
-    <div class="casilla" id="casilla-23"></div>
-</div>
-        <div class="panel-apuestas">
+        <div class="tablero">
+            <div class="panel-central">
+                <img src="logo_centro.png" class="logo-centro-img">
             </div>
+
+            <div class="casilla" id="casilla-0"></div><div class="casilla" id="casilla-1"></div><div class="casilla" id="casilla-2"></div>
+            <div class="casilla" id="casilla-3"></div><div class="casilla" id="casilla-4"></div><div class="casilla" id="casilla-5"></div>
+            <div class="casilla" id="casilla-6"></div>
+
+            <div class="casilla" id="casilla-7"></div><div class="casilla" id="casilla-8"></div><div class="casilla" id="casilla-9"></div>
+            <div class="casilla" id="casilla-10"></div><div class="casilla" id="casilla-11"></div>
+
+            <div class="casilla" id="casilla-12"></div><div class="casilla" id="casilla-13"></div><div class="casilla" id="casilla-14"></div>
+            <div class="casilla" id="casilla-15"></div><div class="casilla" id="casilla-16"></div><div class="casilla" id="casilla-17"></div>
+            <div class="casilla" id="casilla-18"></div>
+
+            <div class="casilla" id="casilla-19"></div><div class="casilla" id="casilla-20"></div><div class="casilla" id="casilla-21"></div>
+            <div class="casilla" id="casilla-22"></div><div class="casilla" id="casilla-23"></div>
+        </div>
+        
+        <div class="panel-apuestas"></div>
 
         <div class="controles-principales">
             <button class="btn-accion btn-cobrar" id="btn-cobrar">COBRAR</button>
             <button class="btn-accion btn-jugar" id="btn-jugar">JUGAR</button>
         </div>
+        
         <div id="modal-victoria" class="modal-oculto">
             <div class="modal-contenido">
                 <img src="notificacion.jpg" alt="¡Ganaste!" class="img-victoria">
@@ -70,7 +66,6 @@
                 <button id="btn-cerrar-modal" class="btn-accion btn-jugar" style="margin-top: 15px; width: 100%;">¡INCREÍBLE!</button>
             </div>
         </div>
-
     </div> 
     
     <audio id="audio-moneda" src="moneda.mp3"></audio>
@@ -78,23 +73,22 @@
     <audio id="audio-premio" src="premio.mp3"></audio>
     <audio id="audio-cobrar" src="cobrar.mp3"></audio>
 
-    <script>
-        // Declaramos estas variables globales para que tu script.js pueda verlas
-        let usuarioLogueado = null;
-        let saldoDisponible = 0;
+    <script src="script.js?v=12"></script>
 
+    <script>
         window.onload = () => {
-            // inicializarBancoEnPagina viene de quetza-banco.js
+            // Llamamos al banco
             inicializarBancoEnPagina((user, saldo) => {
-                usuarioLogueado = user;
-                saldoDisponible = saldo;
                 
-                // Actualizar el marcador visual en el HTML
-                document.getElementById('saldo-global').innerText = saldoDisponible;
+                // MAGIA: Sobrescribimos el saldoGlobal falso de script.js con el saldo real de la nube
+                saldoGlobal = saldo; 
+                
+                // Actualizamos las pantallas visuales para que muestren el dinero real
+                document.getElementById('saldo-global').innerText = saldoGlobal;
+                
+                console.log("¡Jugador autorizado! Billetera cargada con éxito.");
             });
         };
     </script>
-
-    <script src="script.js?v=10"></script>
 </body>
 </html>
